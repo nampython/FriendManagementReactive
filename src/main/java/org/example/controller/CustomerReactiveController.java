@@ -1,9 +1,6 @@
 package org.example.controller;
 
-import org.example.model.CommonFriend;
-import org.example.model.FriendConnection;
-import org.example.model.FriendList;
-import org.example.model.SubscribeToUpdates;
+import org.example.model.*;
 import org.example.model.friends.Friendship;
 import org.example.model.friends.Subscription;
 import org.example.model.friends.User;
@@ -35,7 +32,7 @@ public class CustomerReactiveController {
      * @return A flux&lt;string&gt; object
      */
     @GetMapping(value = GET_FRIENDS, produces = "application/json")
-    public Mono<ResponseEntity<FriendList>> getFriendList(@RequestParam String email) {
+    public Mono<ResponseEntity<ResponseObject>> getFriendList(@RequestParam String email) {
         return friendShipReactiveService.getFriendsListByEmail(email);
     }
 

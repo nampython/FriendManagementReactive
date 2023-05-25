@@ -11,6 +11,8 @@ public class ResponseObject {
     private String timestamp = String.valueOf(System.currentTimeMillis());
 //    private int status;
     private String message;
+    private String success = "false";
+    private Object result;
 //    private String error;
 //    private String warnings;
 //    private String path;
