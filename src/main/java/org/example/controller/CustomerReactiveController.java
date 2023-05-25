@@ -47,7 +47,7 @@ public class CustomerReactiveController {
      * @return A list of email addresses that are common to both friends
      */
     @GetMapping(value = GET_COMMON_FRIEND, produces = "application/json")
-    public Mono<ResponseEntity<CommonFriend>> getCommonFriends(@RequestParam String email1, @RequestParam String email2) {
+    public Mono<ResponseEntity<ResponseObject>> getCommonFriends(@RequestParam String email1, @RequestParam String email2) {
         return friendShipReactiveService.getCommonFriends(email1, email2);
     }
 
