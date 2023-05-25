@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class CommonFriend extends ResponseObject {
-    private String success = "false";
+public class CommonFriend {
     private List<String> friends = null;
     private Integer count = null;
 }

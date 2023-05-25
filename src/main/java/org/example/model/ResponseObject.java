@@ -13,6 +13,12 @@ public class ResponseObject {
     private String message;
     private String success = "false";
     private Object result;
+
+    public ResponseObject(String success, String s, CommonFriend commonFriend) {
+        this.success = success;
+        this.message = s;
+        this.result = commonFriend;
+    }
 //    private String error;
 //    private String warnings;
 //    private String path;

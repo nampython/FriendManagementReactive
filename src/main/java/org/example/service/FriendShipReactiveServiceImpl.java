@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import java.util.regex.Pattern;
 
 
@@ -56,7 +57,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      * @throws InvalidEmailException If the email is valid, throwing an InvalidEmailException
      */
     @Override
-        public Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(String email) throws InvalidEmailException {
+    public Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(String email) throws InvalidEmailException {
         try {
             logger.info("Message = {Processing getting the friend list by email: {}}", email);
             if (isValidEmail(email)) {
@@ -148,7 +149,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      * @throws InvalidEmailException When an email is invalid, throw an exception
      */
     @Override
-    public Mono<ResponseEntity<CommonFriend>> getCommonFriends(String email1, String email2) throws InvalidEmailException {
+    public Mono<ResponseEntity<ResponseObject>> getCommonFriends(String email1, String email2) throws InvalidEmailException {
         try {
             logger.info("Message = {Processing getting the common friend list by email: {} and {}}", email1, email2);
             if (isValidEmail(email1)) {
@@ -156,42 +157,57 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
             } else if (isValidEmail(email2)) {
                 throw new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, email2));
             } else {
+
                 Mono<User> user1Mono = userReactiveDao.findByEmail(email1);
                 Mono<User> user2Mono = userReactiveDao.findByEmail(email2);
-                Flux<CommonFriend> commonFriendFlux = user1Mono.flatMapMany(user1 ->
+                // Perform the remaining logic here to retrieve the common friend list
+                Flux<ResponseObject> commonFriendFlux = user1Mono.flatMapMany(user1 ->
                         user2Mono.flatMapMany(user2 ->
-                                friendshipReactive.findByUserIdAndStatus(user1.getUserId(), "accepted")
+                                friendshipReactive.findByUserIdAndStatus(user1.getUserId(), ACCEPTED)
                                         .concatMap(friendship1 ->
-                                                friendshipReactive.findByUserIdAndStatus(user2.getUserId(), "accepted")
+                                                friendshipReactive.findByUserIdAndStatus(user2.getUserId(), ACCEPTED)
                                                         .filter(friendship2 -> friendship1.getFriendId() == friendship2.getFriendId())
                                                         .concatMap(friendship2 ->
                                                                 userReactiveDao.findByUserId(friendship2.getFriendId())
                                                                         .map(User::getEmail)
                                                                         .flux()
                                                                         .collectList()
-                                                                        .map(emails -> {
-                                                                            CommonFriend commonFriend = new CommonFriend();
-                                                                            commonFriend.setFriends(emails);
-                                                                            commonFriend.setSuccess(SUCCESS);
-                                                                            commonFriend.setCount(emails.size());
-                                                                            commonFriend.setMessage("Common Friend list retrieved successfully.");
-                                                                            return commonFriend;
-                                                                        })
+                                                                        .map(
+                                                                                emails -> {
+                                                                                    CommonFriend commonFriend = new CommonFriend();
+                                                                                    commonFriend.setFriends(emails);
+                                                                                    commonFriend.setCount(emails.size());
+                                                                                    return commonFriend;
+                                                                                })
+                                                                        .map (
+                                                                                commonFriend -> {
+                                                                                    ResponseObject responseObject = new ResponseObject();
+                                                                                    responseObject.setSuccess(SUCCESS);
+                                                                                    responseObject.setMessage("Common Friend list retrieved successfully.");
+                                                                                    responseObject.setResult(commonFriend);
+                                                                                    return responseObject;
+                                                                                }
+                                                                        )
                                                         )
                                         )
                         )
-                );
+                ).log();
                 return commonFriendFlux
-                        .collectList()
+                        .singleOrEmpty() // Get the single item or an empty Flux
+                        .defaultIfEmpty(new ResponseObject( // // Provide a default ResponseObject if empty
+                                        SUCCESS,
+                                        "Not found the common friend list.",
+                                        new CommonFriend())
+                        )
                         .map(
-                                commonFriends -> ResponseEntity.ok().body(commonFriends.get(0))
+                                commonFriends -> ResponseEntity.ok().body(commonFriends)
                         );
             }
         } catch (InvalidEmailException ex) {
             logger.error("Message = {Error while getting the common list friends {} and {}", email1, email2, ex);
-            CommonFriend commonFriend = new CommonFriend();
-            commonFriend.setMessage(ex.getMessage());
-            return Mono.just(ResponseEntity.badRequest().body(commonFriend));
+            ResponseObject responseObject = new ResponseObject();
+            responseObject.setMessage(ex.getMessage());
+            return Mono.just(ResponseEntity.badRequest().body(responseObject));
         }
     }
 

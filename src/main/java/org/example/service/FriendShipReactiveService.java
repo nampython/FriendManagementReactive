@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface FriendShipReactiveService {
     Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(String email) throws InvalidEmailException;
-    Mono<ResponseEntity<CommonFriend>> getCommonFriends(String email1, String email2) throws InvalidEmailException;
+    Mono<ResponseEntity<ResponseObject>> getCommonFriends(String email1, String email2) throws InvalidEmailException;
     Mono<ResponseEntity<FriendConnection>> createFriendConnection(String email1, String email2) throws InvalidEmailException;
     Mono<ResponseEntity<SubscribeToUpdates>> subscribeToUpdates(String subscriberEmail, String targetEmail) throws InvalidEmailException;
     Mono<Void> blockUpdates(String blockerEmail, String blockedEmail);
