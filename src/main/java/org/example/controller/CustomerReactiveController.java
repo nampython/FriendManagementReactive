@@ -59,7 +59,7 @@ public class CustomerReactiveController {
      * @return
      */
     @PostMapping(value = CREATE_FRIEND, produces = "application/json")
-    public Mono<ResponseEntity<FriendConnection>> createConnectionFriend(@RequestParam String email1, @RequestParam String email2) {
+    public Mono<ResponseEntity<ResponseObject>> createConnectionFriend(@RequestParam String email1, @RequestParam String email2) {
         return friendShipReactiveService.createFriendConnection(email1, email2);
     }
 

@@ -8,11 +8,9 @@ import org.example.model.friends.Friendship;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class FriendConnection extends ResponseObject{
-    private String success = "false";
+public class FriendConnection {
     private Friendship friendship = null;
 }
