@@ -1,0 +1,20 @@
+spring:
+    application:
+        name: TestApp
+
+    r2dbc:
+        url: r2dbc:mysql://localhost:3306/friendsmanagement
+        username: root
+        password: Now123DQN
+    #   JPA
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+    #    Datasource
+#    datasource:
+#        url: jdbc:mysql://localhost:3306/friendsmanagement
+#        username: root
+#        password: Now123DQN
+#        driver-class-name: com.mysql.cj.jdbc.Driver
+
