@@ -1,9 +1,6 @@
 package org.example.controller;
 
 import org.example.model.*;
-import org.example.model.friends.Friendship;
-import org.example.model.friends.Subscription;
-import org.example.model.friends.User;
 import org.example.service.FriendShipReactiveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +16,7 @@ public class CustomerReactiveController {
     private static final String GET_FRIENDS = "/v1/user/friends";
     private static final String GET_COMMON_FRIEND = "/v1/user/common";
     private static final String CREATE_FRIEND = "/v1/user/connect";
+    private static final String GET_UPDATE_EMAIL = "/v1/user/updatable";
     @Autowired
     public CustomerReactiveController(FriendShipReactiveService friendShipReactiveService) {
         this.friendShipReactiveService = friendShipReactiveService;
@@ -92,7 +90,16 @@ public class CustomerReactiveController {
         return friendShipReactiveService.blockUpdates(email1, email2);
     }
 
-
-
-
+    /**
+     * Retrieves all email addresses that can receive updates from an email address.
+     *
+     * @param email Retrieve the sender's email address from the database
+     *
+     * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
+     *
+     */
+    @GetMapping(GET_UPDATE_EMAIL)
+    public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(@RequestParam String email) {
+        return friendShipReactiveService.getEligibleEmailAddresses(email);
+    }
 }
