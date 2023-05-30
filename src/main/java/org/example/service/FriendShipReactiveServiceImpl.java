@@ -310,7 +310,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      * @return A Mono&lt;ResponseEntity&lt;SubscribeToUpdates&gt;&gt; object
      */
     @Override
-    public Mono<ResponseEntity<SubscribeToUpdates>> subscribeToUpdates(String subscriberEmail, String targetEmail) throws InvalidEmailException {
+    public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(String subscriberEmail, String targetEmail) throws InvalidEmailException {
         //TODO
         // Need to check some conditions below
         // Error: "Email is not valid" [Re-check]
@@ -332,8 +332,11 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                     return subscriptionReactiveDao.findBySubscriberIdAndTargetId(subscriber.getUserId(), target.getUserId())
                                             .flatMap(existingSubscription -> {
                                                 SubscribeToUpdates subscribeToUpdates = new SubscribeToUpdates();
-                                                subscribeToUpdates.setMessage("They already have a subscription.");
-                                                return Mono.just(ResponseEntity.ok().body(subscribeToUpdates));
+                                                ResponseObject responseObject = new ResponseObject();
+                                                responseObject.setSuccess(SUCCESS);
+                                                responseObject.setMessage("They already have a subscription.");
+                                                responseObject.setResult(subscribeToUpdates);
+                                                return Mono.just(ResponseEntity.ok().body(responseObject));
                                             })
                                             .switchIfEmpty(
                                                     // Create a new subscription
@@ -341,32 +344,40 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                                             .map(savedSubscription -> {
                                                                 SubscribeToUpdates subscribeToUpdates = new SubscribeToUpdates();
                                                                 subscribeToUpdates.setSubscription(savedSubscription);
-                                                                subscribeToUpdates.setSuccess(SUCCESS);
-                                                                subscribeToUpdates.setMessage("Subscribed successfully.");
-                                                                return ResponseEntity.ok().body(subscribeToUpdates);
+                                                                return savedSubscription;
+                                                            })
+                                                            .map(savedSubscription -> {
+                                                                ResponseObject responseObject = new ResponseObject();
+                                                                responseObject.setSuccess(SUCCESS);
+                                                                responseObject.setMessage("Subscribed successfully.");
+                                                                responseObject.setResult(savedSubscription);
+                                                                return ResponseEntity.ok().body(responseObject);
                                                             })
                                             );
                                 })
                                 // If the target user is not found
                                 .switchIfEmpty(Mono.defer(() -> {
-                                    SubscribeToUpdates subscribeToUpdates = new SubscribeToUpdates();
-                                    subscribeToUpdates.setMessage("Target user not found.");
-                                    return Mono.just(ResponseEntity.badRequest().body(subscribeToUpdates));
+                                    ResponseObject responseObject = new ResponseObject();
+                                    responseObject.setSuccess(SUCCESS);
+                                    responseObject.setMessage("Target user not found.");
+                                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseObject));
                                 }))
                         )
                         // If the subscriber user is not found
                         .switchIfEmpty(Mono.defer(() -> {
-                            SubscribeToUpdates subscribeToUpdates = new SubscribeToUpdates();
-                            subscribeToUpdates.setMessage("Subscriber user not found.");
-                            return Mono.just(ResponseEntity.badRequest().body(subscribeToUpdates));
+                            ResponseObject responseObject = new ResponseObject();
+                            responseObject.setSuccess(SUCCESS);
+                            responseObject.setMessage("Subscriber user not found.");
+                            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseObject));
                         }))
                         .single(); // Convert the Flux to a Mono
             }
         } catch (InvalidEmailException ex) {
             logger.error("Error while subscribing to updates {} and {}", subscriberEmail, targetEmail, ex);
-            SubscribeToUpdates subscribeToUpdates = new SubscribeToUpdates();
-            subscribeToUpdates.setMessage(ex.getMessage());
-            return Mono.just(ResponseEntity.badRequest().body(subscribeToUpdates));
+            ResponseObject responseObject = new ResponseObject();
+            responseObject.setSuccess(UNSUCCESS);
+            responseObject.setMessage(ex.getMessage());
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseObject));
         }
     }
 
