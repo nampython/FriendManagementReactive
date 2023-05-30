@@ -1,13 +1,11 @@
 package org.example.controller;
 
+import org.example.dto.FriendListDTO;
 import org.example.model.*;
 import org.example.service.FriendShipReactiveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -27,12 +25,12 @@ public class CustomerReactiveController {
      * Take in an email and return a list of the friends
      * associated with the email passed in as a parameter.
      *
-     * @param email Email that wants to get the friend list of this email
+     * @param request Email that wants to get the friend list of this email
      * @return A flux&lt;string&gt; object
      */
     @GetMapping(value = GET_FRIENDS, produces = "application/json")
-    public Mono<ResponseEntity<ResponseObject>> getFriendList(@RequestParam String email) {
-        return friendShipReactiveService.getFriendsListByEmail(email);
+    public Mono<ResponseEntity<ResponseObject>> getFriendList(@RequestBody FriendListDTO.Request request) {
+        return friendShipReactiveService.getFriendsListByEmail(request);
     }
 
 

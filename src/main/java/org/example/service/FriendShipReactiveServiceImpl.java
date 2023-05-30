@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.FriendListDTO;
 import org.example.exception.InvalidEmailException;
 import org.example.model.*;
 import org.example.model.friends.Block;
@@ -54,62 +55,47 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     /**
      * Takes in an email address as a String and returns a list of the friends.
      *
-     * @param email The email need to find the list of friends
+     * @param request The email need to find the list of friends
      * @return A Mono&lt;ResponseEntity&lt;FriendList&gt;&gt;
      * @throws InvalidEmailException If the email is valid, throwing an InvalidEmailException
      */
     @Override
-    public Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(String email) throws InvalidEmailException {
-        try {
-            logger.info("Message = {Processing getting the friend list by email: {}}", email);
-            if (isValidEmail(email)) {
-                throw new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, email));
-            } else {
-                // Perform the remaining logic here to retrieve the friend list
-                Mono<ResponseObject> friendListMono = userReactiveDao
-                        .findByEmail(email).flux()
-                        .concatMap(
-                                user -> {
-                                    logger.info("Message = {Getting the friendship list of user: {}}", user);
-                                    return friendshipReactive.findByUserIdAndStatus(user.getUserId(), ACCEPTED);
-                                }
-                        )
-                        .concatMap(
-                                friendship -> {
-                                    logger.info("Message = {Getting the user from friend id: {}}", friendship.getFriendshipId());
-                                    return userReactiveDao.findByUserId(friendship.getFriendshipId());
-                                }
-                        )
-                        .map(user -> {
-                            logger.info("Message = {Getting the email from user: {}}", user);
-                            return user.getEmail();
-                        })
-                        .collectList()
-                        .map(
-                                emails -> {
-                                    FriendList friendList = new FriendList();
-                                    friendList.setFriends(emails);
-                                    friendList.setCount(emails.size());
-                                    return friendList;
-                                }
-                        ).map(
-                                friendList -> {
-                                    logger.info("Message = {The friend list retrieved successfully.}");
-                                    ResponseObject responseObject = new ResponseObject();
-                                    responseObject.setMessage("Friend list retrieved successfully.");
-                                    responseObject.setSuccess(SUCCESS);
-                                    responseObject.setResult(friendList);
-                                    return responseObject;
-                                }
-                        );
-                return friendListMono.map(friendList -> ResponseEntity.ok().body(friendList));
-            }
-        } catch (InvalidEmailException ex) {
-            logger.error("Message = {Error while getting the friend list by email: {}}", email, ex);
-            ResponseObject responseObject = new ResponseObject();
-            responseObject.setMessage(ex.getMessage());
-            return Mono.just(ResponseEntity.badRequest().body(responseObject));
-        }
+    public Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(FriendListDTO.Request request) throws InvalidEmailException {
+        return Mono.just(request.getEmail())
+                .filter(this::isValidEmail)
+                .switchIfEmpty(
+                        Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail())))
+                )
+                .flatMap(
+                        email -> userReactiveDao.findByEmail(email).flux()
+                                .concatMap(
+                                        user -> friendshipReactive.findByUserIdAndStatus(user.getUserId(), ACCEPTED)
+                                )
+                                .concatMap(
+                                        friendship -> userReactiveDao.findByUserId(friendship.getFriendshipId())
+                                )
+                                .map(User::getEmail)
+                                .collectList()
+                                .map(
+                                        emails -> FriendListDTO.Response
+                                                .builder()
+                                                .friends(emails)
+                                                .count(emails.size())
+                                                .build()
+                                )
+                                .map(friendList -> ResponseEntity.status(HttpStatus.OK).body(
+                                        ResponseObject.builder()
+                                                .message("Friend list retrieved successfully.")
+                                                .success(SUCCESS)
+                                                .result(friendList)
+                                                .build()
+                                ))
+                )
+                .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(
+                                ResponseObject.builder()
+                                        .message(ex.getMessage())
+                                        .build()))
+                );
     }
 
     /**
@@ -136,7 +122,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      * @return True if email is valid and contrast
      */
     private boolean isValidEmail(String email) {
-        return !Boolean.TRUE.equals(Mono.fromSupplier(
+        return Boolean.TRUE.equals(Mono.fromSupplier(
                 () -> EMAIL_PATTERN.matcher(email).matches()
         ).block());
     }
@@ -419,10 +405,8 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     /**
      * Retrieves all email addresses that can receive updates from an email address.
      *
-     * @param  senderEmail Retrieve the sender's email address from the database
-     *
+     * @param senderEmail Retrieve the sender's email address from the database
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
-     *
      */
     @Override
     public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(String senderEmail) throws InvalidEmailException {
