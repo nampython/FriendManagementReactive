@@ -17,6 +17,7 @@ public class CustomerReactiveController {
     private static final String GET_COMMON_FRIEND = "/v1/user/common";
     private static final String CREATE_FRIEND = "/v1/user/connect";
     private static final String GET_UPDATE_EMAIL = "/v1/user/updatable";
+    private static final String SUBSCRIBE_TO_UPDATE = "/v1/user/subscribe";
     @Autowired
     public CustomerReactiveController(FriendShipReactiveService friendShipReactiveService) {
         this.friendShipReactiveService = friendShipReactiveService;
@@ -73,8 +74,8 @@ public class CustomerReactiveController {
      * @return A mono&lt;subscription&gt; object
      *
      */
-    @PostMapping(value = "/user/subscribe")
-    public Mono<ResponseEntity<SubscribeToUpdates>> subscribeToUpdates(@RequestParam String email1, @RequestParam String email2) {
+    @PostMapping(value = SUBSCRIBE_TO_UPDATE)
+    public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(@RequestParam String email1, @RequestParam String email2) {
         return friendShipReactiveService.subscribeToUpdates(email1, email2);
     }
 
