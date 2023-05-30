@@ -22,11 +22,10 @@ public class BlockReactiveRepositoryTest extends TestCase {
 
     @Test
     public void testFindByBlockerIdAndBlockedId() {
-        // Input
+        // Prepare for data
         int blockerId = 1;
         int blockedId = 2;
 
-        // Sample Data
         Block block = new Block();
         block.setBlockerId(blockerId);
         block.setBlockedId(blockedId);

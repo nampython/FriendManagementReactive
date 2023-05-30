@@ -17,17 +17,15 @@ import static org.mockito.Mockito.when;
 @DataR2dbcTest
 @RunWith(SpringRunner.class)
 public class FriendshipReactiveDaoTest extends TestCase {
-
     @Mock
     private FriendshipReactiveDao friendshipReactiveDao;
 
     @Test
     public void testFindByUserIdAndStatus() {
-        // Input
+        // Prepare for data
         int userId = 1;
         String status = "accepted";
 
-        // Sample data
         Friendship friendship1 = new Friendship();
         friendship1.setFriendshipId(1);
         friendship1.setStatus("accepted");
@@ -56,11 +54,10 @@ public class FriendshipReactiveDaoTest extends TestCase {
 
     @Test
     public void testFindByUserIdAndFriendId() {
-        // Input
+        // Prepare for data
         int userId = 1;
         int friendId = 2;
 
-        // Sample Data
         Friendship friendship = new Friendship();
         friendship.setUserId(userId);
         friendship.setFriendId(friendId);
