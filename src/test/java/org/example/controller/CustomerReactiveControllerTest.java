@@ -9,17 +9,13 @@ import org.example.model.friends.Subscription;
 import org.example.service.FriendShipReactiveService;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
@@ -27,6 +23,7 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -67,7 +64,7 @@ public class CustomerReactiveControllerTest {
 
 
         // Mock
-        when(friendShipReactiveService.getFriendsListByEmail(anyString()))
+        when(friendShipReactiveService.getFriendsListByEmail(any()))
                 .thenReturn(Mono.just(ResponseEntity.ok().body(responseObject)));
 
         // Verify the response
