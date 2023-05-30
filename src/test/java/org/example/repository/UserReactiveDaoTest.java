@@ -5,7 +5,6 @@ import org.example.model.friends.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -19,17 +18,14 @@ import static org.mockito.Mockito.when;
 @DataR2dbcTest
 @RunWith(SpringRunner.class)
 public class UserReactiveDaoTest extends TestCase {
-
     @Mock
     private UserReactiveDao userReactiveDao;
 
-
     @Test
     public void testFindByEmail() {
-        // Sample email
+        // Prepare for data
         String email = "andy@example.com";
 
-        // Sample User
         User user = new User();
         user.setUserId(1);
         user.setEmail(email);
@@ -49,10 +45,9 @@ public class UserReactiveDaoTest extends TestCase {
 
     @Test
     public void testFindByUserId() {
-        // Sample user ID
+        // Prepare for data
         int userId = 1;
 
-        // Sample User
         User user = new User();
         user.setUserId(userId);
 

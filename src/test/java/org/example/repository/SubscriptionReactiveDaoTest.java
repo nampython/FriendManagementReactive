@@ -21,11 +21,10 @@ public class SubscriptionReactiveDaoTest extends TestCase {
 
     @Test
     public void testFindBySubscriberIdAndTargetId() {
-        // Input
+        // Prepare for data
         int subscriberId = 1;
         int targetId = 2;
 
-        // Sample data
         Subscription subscription = new Subscription();
         subscription.setSubscriberId(subscriberId);
         subscription.setTargetId(targetId);
@@ -45,11 +44,10 @@ public class SubscriptionReactiveDaoTest extends TestCase {
 
     @Test
     public void testDeleteBySubscriberIdAndTargetId() {
-        // Input
+        // Prepare for data
         int subscriberId = 1;
         int targetId = 2;
 
-        // Sample data
         Subscription subscription = new Subscription();
         subscription.setSubscriberId(subscriberId);
         subscription.setTargetId(targetId);
