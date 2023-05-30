@@ -22,7 +22,6 @@
         <junit.version>4.13.1</junit.version>
         <mockito-core.version>4.11.0</mockito-core.version>
         <reactor-test.version>3.4.26</reactor-test.version>
-<!--        <spring-web-test-client.version>5.3.0</spring-web-test-client.version>-->
         <spring-boot-starter-test.version>2.7.6</spring-boot-starter-test.version>
     </properties>
 
@@ -72,12 +71,6 @@
             <version>${reactor-test.version}</version>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.rest-assured</groupId>-->
-<!--            <artifactId>spring-web-test-client</artifactId>-->
-<!--            <version>${spring-web-test-client.version}</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -97,8 +90,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>
