@@ -14,10 +14,10 @@ public class ResponseObject {
     private String success = "false";
     private Object result;
 
-    public ResponseObject(String success, String s, CommonFriend commonFriend) {
+    public ResponseObject(String success, String s, Object result) {
         this.success = success;
         this.message = s;
-        this.result = commonFriend;
+        this.result = result;
     }
 //    private String error;
 //    private String warnings;
