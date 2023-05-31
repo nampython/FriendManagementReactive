@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface UserReactiveDao extends R2dbcRepository<User, Integer> {
     Mono<User> findByEmail(String email);
-    Mono<User> findByUserId(int userId);
+    Mono<User> findByUserId(Integer userId);
 }
