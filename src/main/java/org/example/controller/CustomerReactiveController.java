@@ -4,6 +4,7 @@ import org.example.dto.CommonFriendDTO;
 import org.example.dto.EligibleEmailAddressesDTO;
 import org.example.dto.FriendConnection;
 import org.example.dto.FriendListDTO;
+import org.example.dto.SubscribeUpdatesDTO;
 import org.example.model.*;
 import org.example.service.FriendShipReactiveService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,19 +66,15 @@ public class CustomerReactiveController {
 
 
     /**
-     * Subscribes the user with email address email2 to updates from the user with
-     * email address email 1. Returns a Subscription object that contains information about this subscription.
-
+     * Used to make a subscription from 2 emails.
+     * @param request contain 2 emails from request to subscribe from email1 to email2
      *
-     * @param email1 email1 Pass the email of the user who wants to subscribe to updates
-     * @param email2  email2 Specify the email of the user who is subscribing to updates
-     *
-     * @return A mono&lt;subscription&gt; object
+     * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
      *
      */
     @PostMapping(value = SUBSCRIBE_TO_UPDATE)
-    public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(@RequestParam String email1, @RequestParam String email2) {
-        return friendShipReactiveService.subscribeToUpdates(email1, email2);
+    public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(@RequestBody SubscribeUpdatesDTO.Request request) {
+        return friendShipReactiveService.subscribeToUpdates(request);
     }
 
 
