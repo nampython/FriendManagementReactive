@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.dto.CommonFriendDTO;
 import org.example.dto.FriendListDTO;
 import org.example.model.*;
 import org.example.service.FriendShipReactiveService;
@@ -35,17 +36,15 @@ public class CustomerReactiveController {
 
 
     /**
-     * The getCommonFriends function takes in two email addresses and returns a list of their common friends.
+     * Takes in two email addresses and returns a list of their common friends.
      *
-     * @param email1 Get the email address of user 1
-     * @param email2 Specify the email of the second user
-
+     * @param request Contain 2 emails to find the common list of friends
      *
      * @return A list of email addresses that are common to both friends
      */
     @GetMapping(value = GET_COMMON_FRIEND, produces = "application/json")
-    public Mono<ResponseEntity<ResponseObject>> getCommonFriends(@RequestParam String email1, @RequestParam String email2) {
-        return friendShipReactiveService.getCommonFriends(email1, email2);
+    public Mono<ResponseEntity<ResponseObject>> getCommonFriends(@RequestBody CommonFriendDTO.Request request) {
+        return friendShipReactiveService.getCommonFriends(request);
     }
 
 
