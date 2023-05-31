@@ -239,6 +239,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                         ResponseObject.builder()
                                 .message(ex.getMessage())
                                 .build())));
+    }
 
     public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(SubscribeUpdatesDTO.Request request) throws InvalidEmailException {
 
