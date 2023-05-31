@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.CommonFriendDTO;
 import org.example.dto.FriendListDTO;
 import org.example.exception.InvalidEmailException;
 import org.example.model.*;
@@ -23,6 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 
@@ -63,38 +65,30 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     public Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(FriendListDTO.Request request) throws InvalidEmailException {
         return Mono.just(request.getEmail())
                 .filter(this::isValidEmail)
-                .switchIfEmpty(
-                        Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail())))
-                )
-                .flatMap(
-                        email -> userReactiveDao.findByEmail(email).flux()
-                                .concatMap(
-                                        user -> friendshipReactive.findByUserIdAndStatus(user.getUserId(), ACCEPTED)
-                                )
-                                .concatMap(
-                                        friendship -> userReactiveDao.findByUserId(friendship.getFriendshipId())
-                                )
-                                .map(User::getEmail)
-                                .collectList()
-                                .map(
-                                        emails -> FriendListDTO.Response
-                                                .builder()
-                                                .friends(emails)
-                                                .count(emails.size())
-                                                .build()
-                                )
-                                .map(friendList -> ResponseEntity.status(HttpStatus.OK).body(
-                                        ResponseObject.builder()
-                                                .message("Friend list retrieved successfully.")
-                                                .success(SUCCESS)
-                                                .result(friendList)
-                                                .build()
-                                ))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail()))))
+                .flatMap(email -> userReactiveDao.findByEmail(email)
+                        .flux().concatMap(user -> friendshipReactive.findByUserIdAndStatus(user.getUserId(), ACCEPTED))
+                        .concatMap(friendship -> userReactiveDao.findByUserId(friendship.getFriendshipId()))
+                        .map(User::getEmail)
+                        .collectList()
+                        .map(emails -> FriendListDTO.Response
+                                .builder()
+                                .friends(emails)
+                                .count(emails.size())
+                                .build()
+                        )
+                        .map(friendList -> ResponseEntity.status(HttpStatus.OK).body(
+                                ResponseObject.builder()
+                                        .message("Friend list retrieved successfully.")
+                                        .success(SUCCESS)
+                                        .result(friendList)
+                                        .build()
+                        ))
                 )
                 .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(
-                                ResponseObject.builder()
-                                        .message(ex.getMessage())
-                                        .build()))
+                        ResponseObject.builder()
+                                .message(ex.getMessage())
+                                .build()))
                 );
     }
 
@@ -122,85 +116,65 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      * @return True if email is valid and contrast
      */
     private boolean isValidEmail(String email) {
-        return Boolean.TRUE.equals(Mono.fromSupplier(
-                () -> EMAIL_PATTERN.matcher(email).matches()
-        ).block());
+        return Boolean.TRUE.equals(EMAIL_PATTERN.matcher(email).matches());
     }
 
 
     /**
      * Takes in two email addresses and returns a list of their common friends.
      *
-     * @param email1 The first email that wants to find the common list friend
-     * @param email2 The second email that wants to find the common list friend
+     * @param request Contain the email fields that want to find the common list friend
      * @return A list of email addresses that are common friends to both users
      * @throws InvalidEmailException When an email is invalid, throw an exception
      */
     @Override
-    public Mono<ResponseEntity<ResponseObject>> getCommonFriends(String email1, String email2) throws InvalidEmailException {
-        // TODO
-        // CHECK SOME CONDITIONS
-        // 1. if email1 is invalid [re-check]
-        // 2. if email2 is invalid [re-check]
-        // 3. If the list of the common friend is empty [re-check]
-        try {
-            logger.info("Message = {Processing getting the common friend list by email: {} and {}}", email1, email2);
-            if (isValidEmail(email1)) {
-                throw new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, email1));
-            } else if (isValidEmail(email2)) {
-                throw new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, email2));
-            } else {
-                Mono<User> user1Mono = userReactiveDao.findByEmail(email1);
-                Mono<User> user2Mono = userReactiveDao.findByEmail(email2);
-                // Perform the remaining logic here to retrieve the common friend list
-                Flux<ResponseObject> commonFriendFlux = user1Mono.flatMapMany(user1 ->
-                        user2Mono.flatMapMany(user2 ->
-                                friendshipReactive.findByUserIdAndStatus(user1.getUserId(), ACCEPTED)
-                                        .concatMap(friendship1 ->
-                                                friendshipReactive.findByUserIdAndStatus(user2.getUserId(), ACCEPTED)
-                                                        .filter(friendship2 -> friendship1.getFriendId() == friendship2.getFriendId())
-                                                        .concatMap(friendship2 ->
-                                                                userReactiveDao.findByUserId(friendship2.getFriendId())
-                                                                        .map(User::getEmail)
-                                                                        .flux()
-                                                                        .collectList()
-                                                                        .map(
-                                                                                emails -> {
-                                                                                    CommonFriend commonFriend = new CommonFriend();
-                                                                                    commonFriend.setFriends(emails);
-                                                                                    commonFriend.setCount(emails.size());
-                                                                                    return commonFriend;
-                                                                                })
-                                                                        .map(
-                                                                                commonFriend -> {
-                                                                                    ResponseObject responseObject = new ResponseObject();
-                                                                                    responseObject.setSuccess(SUCCESS);
-                                                                                    responseObject.setMessage("Common Friend list retrieved successfully.");
-                                                                                    responseObject.setResult(commonFriend);
-                                                                                    return responseObject;
-                                                                                }
-                                                                        )
-                                                        )
-                                        )
-                        )
-                ).log();
-                return commonFriendFlux
-                        .singleOrEmpty() // Get the single item or an empty Flux
-                        .defaultIfEmpty(new ResponseObject( // // Provide a default ResponseObject if empty
-                                SUCCESS,
-                                "Not found the common friend list.",
-                                new CommonFriend())
-                        )
-                        .map(
-                                commonFriends -> ResponseEntity.ok().body(commonFriends)
-                        );
-            }
-        } catch (InvalidEmailException ex) {
-            logger.error("Message = {Error while getting the common list friends {} and {}", email1, email2, ex);
-            ResponseObject responseObject = new ResponseObject();
-            responseObject.setMessage(ex.getMessage());
-            return Mono.just(ResponseEntity.badRequest().body(responseObject));
-        }
+    public Mono<ResponseEntity<ResponseObject>> getCommonFriends(CommonFriendDTO.Request request) throws InvalidEmailException {
+        // TODO:
+        // Bug 1: In case of 2 email not founding the common lis of friend -> the response does not return anything.
+
+        return Mono.just(request)
+                .filter(email1 -> isValidEmail(request.getEmail1()))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail1()))))
+                .filter(email2 -> isValidEmail(request.getEmail2()))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail2()))))
+                .flatMap(req -> {
+                    Mono<User> user1 = userReactiveDao.findByEmail(req.getEmail1());
+                    Mono<User> user2 = userReactiveDao.findByEmail(req.getEmail2());
+                    // Perform the remaining logic here to retrieve the common friend list
+                    Flux<ResponseObject> response = user1.flatMapMany(u1 ->
+                            user2.flatMapMany(u2 ->
+                                    friendshipReactive.findByUserIdAndStatus(u1.getUserId(), ACCEPTED)
+                                            .concatMap(friendship1 ->
+                                                    friendshipReactive.findByUserIdAndStatus(u2.getUserId(), ACCEPTED)
+                                                            .filter(friendship2 -> Objects.equals(friendship1.getFriendId(), friendship2.getFriendId()))
+                                                            .concatMap(friendship2 ->
+                                                                    userReactiveDao.findByUserId(friendship2.getFriendId())
+                                                                            .map(User::getEmail)
+                                                                            .flux()
+                                                                            .collectList()
+                                                                            .map(
+                                                                                    emails -> CommonFriendDTO.Response.builder()
+                                                                                            .friends(emails)
+                                                                                            .count(emails.size())
+                                                                                            .build())
+                                                                            .map(
+                                                                                    commonFriend -> ResponseObject.builder()
+                                                                                            .success(SUCCESS)
+                                                                                            .message("Common Friend list retrieved successfully.")
+                                                                                            .result(commonFriend)
+                                                                                            .build()
+                                                                            )
+                                                            )
+                                            )
+                            )
+                    );
+                    return response.next() // Get the first (and only) element from the Flux
+                            .map(respObj -> ResponseEntity.status(HttpStatus.OK).body(respObj));
+                })
+                .onErrorResume(ex -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        ResponseObject.builder()
+                                .message(ex.getMessage())
+                                .build())));
     }
 
     /**
