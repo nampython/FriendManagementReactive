@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.dto.CommonFriendDTO;
+import org.example.dto.FriendConnection;
 import org.example.dto.FriendListDTO;
 import org.example.model.*;
 import org.example.service.FriendShipReactiveService;
@@ -49,14 +50,15 @@ public class CustomerReactiveController {
 
 
     /**
+     * Used to create a friend connection between two email addresses.
      *
-     * @param email1
-     * @param email2
-     * @return
+     * @param request Contain 2 emails that want to make the connection
+     *
+     * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt&gt;
      */
     @PostMapping(value = CREATE_FRIEND, produces = "application/json")
-    public Mono<ResponseEntity<ResponseObject>> createConnectionFriend(@RequestParam String email1, @RequestParam String email2) {
-        return friendShipReactiveService.createFriendConnection(email1, email2);
+    public Mono<ResponseEntity<ResponseObject>> createConnectionFriend(@RequestBody FriendConnection.Request request) {
+        return friendShipReactiveService.createFriendConnection(request);
     }
 
 
