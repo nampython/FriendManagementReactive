@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.dto.CommonFriendDTO;
+import org.example.dto.EligibleEmailAddressesDTO;
 import org.example.dto.FriendConnection;
 import org.example.dto.FriendListDTO;
 import org.example.dto.SubscribeUpdatesDTO;
@@ -14,11 +15,12 @@ import reactor.core.publisher.Mono;
 @RestController
 public class CustomerReactiveController {
     private final FriendShipReactiveService friendShipReactiveService;
-    private static final String GET_FRIENDS = "/v1/user/friends";
-    private static final String GET_COMMON_FRIEND = "/v1/user/common";
-    private static final String CREATE_FRIEND = "/v1/user/connect";
-    private static final String GET_UPDATE_EMAIL = "/v1/user/updatable";
-    private static final String SUBSCRIBE_TO_UPDATE = "/v1/user/subscribe";
+    private static final String VERSION_API = "/v1";
+    private static final String GET_FRIENDS = VERSION_API +  "/friends";
+    private static final String GET_COMMON_FRIEND = VERSION_API+ "/user/common";
+    private static final String CREATE_FRIEND = VERSION_API + "/user/connect";
+    private static final String GET_UPDATE_EMAIL = VERSION_API + "/user/updatable";
+    private static final String SUBSCRIBE_TO_UPDATE = VERSION_API + "/user/subscribe";
     @Autowired
     public CustomerReactiveController(FriendShipReactiveService friendShipReactiveService) {
         this.friendShipReactiveService = friendShipReactiveService;
@@ -90,13 +92,13 @@ public class CustomerReactiveController {
     /**
      * Retrieves all email addresses that can receive updates from an email address.
      *
-     * @param email Retrieve the sender's email address from the database
+     * @param request contain the required email to retrieve all email addresses
      *
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
      *
      */
-    @GetMapping(GET_UPDATE_EMAIL)
-    public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(@RequestParam String email) {
-        return friendShipReactiveService.getEligibleEmailAddresses(email);
+    @GetMapping(value = GET_UPDATE_EMAIL, produces = "application/json")
+    public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(@RequestBody EligibleEmailAddressesDTO.Request request) {
+        return friendShipReactiveService.getEligibleEmailAddresses(request);
     }
 }

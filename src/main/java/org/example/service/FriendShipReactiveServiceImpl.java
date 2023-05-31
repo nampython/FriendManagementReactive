@@ -1,6 +1,8 @@
 package org.example.service;
 
+import lombok.extern.log4j.Log4j;
 import org.example.dto.CommonFriendDTO;
+import org.example.dto.EligibleEmailAddressesDTO;
 import org.example.dto.FriendConnection;
 import org.example.dto.FriendListDTO;
 import org.example.dto.SubscribeUpdatesDTO;
@@ -14,8 +16,6 @@ import org.example.repository.BlockReactiveRepository;
 import org.example.repository.FriendshipReactiveDao;
 import org.example.repository.SubscriptionReactiveDao;
 import org.example.repository.UserReactiveDao;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +45,6 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     private final SubscriptionReactiveDao subscriptionReactiveDao;
     private final BlockReactiveRepository blockReactiveRepository;
     private final DatabaseClient r2dbcDatabaseClient;
-    private final Logger logger = LoggerFactory.getLogger(FriendShipReactiveServiceImpl.class);
 
     @Autowired
     public FriendShipReactiveServiceImpl(UserReactiveDao userRepository, FriendshipReactiveDao friendshipRepositoryReactive, SubscriptionReactiveDao subscriptionReactiveDao, BlockReactiveRepository blockReactiveRepository, DatabaseClient r2dbcDatabaseClient) {
@@ -240,15 +239,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                         ResponseObject.builder()
                                 .message(ex.getMessage())
                                 .build())));
-    }
 
-    /**
-     * Subscribe to updates from an email address to another email.
-     *
-     * @param request contain 2 emails to subscribe
-     * @return A Mono&lt;ResponseEntity&lt;SubscribeToUpdates&gt;&gt; object
-     */
-    @Override
     public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(SubscribeUpdatesDTO.Request request) throws InvalidEmailException {
 
         return Mono.just(request)
@@ -352,54 +343,59 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     /**
      * Retrieves all email addresses that can receive updates from an email address.
      *
-     * @param senderEmail Retrieve the sender's email address from the database
+     * @param request contain email that wants to receive the update
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
      */
     @Override
-    public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(String senderEmail) throws InvalidEmailException {
-        try {
-            if (isValidEmail(senderEmail)) {
-                throw new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, senderEmail));
-            } else {
-                Mono<ResponseObject> updateEmails = userReactiveDao.findByEmail(senderEmail)
-                        .flatMapMany(senderUser -> Flux.concat(
-                                friendshipReactive.findByUserId(senderUser.getUserId())
-                                        .map(Friendship::getFriendId),
-                                subscriptionReactiveDao.findBySubscriberId(senderUser.getUserId())
-                                        .map(Subscription::getTargetId)
-                        ))
-                        .distinct()
-                        .publishOn(Schedulers.boundedElastic())
-                        .filter(
-                                targetUserId -> blockReactiveRepository
-                                        .findByBlockerId(targetUserId).blockOptional().isEmpty()
-                        )
-                        .flatMap(
-                                userReactiveDao::findByUserId
-                        )
-                        .map(User::getEmail)
-                        .collectList()
-                        .map(emails -> {
-                            UpdateEmail updateEmail = new UpdateEmail();
-                            updateEmail.setFriends(emails);
-                            updateEmail.setCount(emails.size());
-                            return updateEmail;
-                        })
-                        .map(emails -> {
-                            ResponseObject responseObject = new ResponseObject();
-                            responseObject.setMessage("Friend list retrieved successfully.");
-                            responseObject.setSuccess(SUCCESS);
-                            responseObject.setResult(emails);
-                            return responseObject;
-                        });
-                return updateEmails.map(emails -> ResponseEntity.status(HttpStatus.OK).body(emails));
-            }
-        } catch (InvalidEmailException ex) {
-            logger.error("Message = {Error in retrieve all email addresses that can receive\n" +
-                    "updates from an email address {}.}", senderEmail, ex);
-            ResponseObject responseObject = new ResponseObject();
-            responseObject.setMessage(ex.getMessage());
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseObject));
-        }
+    public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(EligibleEmailAddressesDTO.Request request) throws InvalidEmailException {
+
+        return Mono.just(request)
+                .filter(email -> isValidEmail(request.getEmail()))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail()))))
+                .flatMap(req -> {
+                            Mono<ResponseObject> response = userReactiveDao.findByEmail(req.getEmail())
+                                    .flatMapMany(senderUser -> Flux.concat(
+                                            friendshipReactive.findByUserId(senderUser.getUserId())
+                                                    .map(Friendship::getFriendId),
+                                            subscriptionReactiveDao.findBySubscriberId(senderUser.getUserId())
+                                                    .map(Subscription::getTargetId)
+                                    ))
+                                    .distinct()
+                                    .publishOn(Schedulers.boundedElastic())
+                                    .filter(
+                                            targetUserId -> blockReactiveRepository
+                                                    .findByBlockerId(targetUserId).blockOptional().isEmpty()
+                                    )
+                                    .flatMap(
+                                            userReactiveDao::findByUserId
+                                    )
+                                    .map(User::getEmail)
+                                    .collectList()
+                                    .map(emails -> {
+                                        UpdateEmail updateEmail = new UpdateEmail();
+                                        updateEmail.setFriends(emails);
+                                        updateEmail.setCount(emails.size());
+                                        return updateEmail;
+                                    })
+                                    .map(emails -> {
+                                        ResponseObject responseObject = new ResponseObject();
+                                        responseObject.setMessage("Friend list retrieved successfully.");
+                                        responseObject.setSuccess(SUCCESS);
+                                        responseObject.setResult(emails);
+                                        return responseObject;
+                                    });
+                            return response.map(
+                                    emails -> ResponseEntity.status(HttpStatus.OK).body(emails)
+                            );
+                        }
+                )
+                .onErrorResume(ex -> {
+                            ;
+                            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                                    ResponseObject.builder()
+                                            .message(ex.getMessage())
+                                            .build()));
+                        }
+                );
     }
 }
