@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.dto.CommonFriendDTO;
 import org.example.dto.FriendConnection;
 import org.example.dto.FriendListDTO;
+import org.example.dto.SubscribeUpdatesDTO;
 import org.example.exception.InvalidEmailException;
 import org.example.model.*;
 import org.example.model.friends.Block;
@@ -242,82 +243,75 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     }
 
     /**
-     * Subscribe to updates from an email address.
+     * Subscribe to updates from an email address to another email.
      *
-     * @param subscriberEmail the subscriber email address.
-     * @param targetEmail     the target email address to subscribe to.
+     * @param request contain 2 emails to subscribe
      * @return A Mono&lt;ResponseEntity&lt;SubscribeToUpdates&gt;&gt; object
      */
     @Override
-    public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(String subscriberEmail, String targetEmail) throws InvalidEmailException {
-        //TODO
-        // Need to check some conditions below
-        // Error: "Email is not valid" [Re-check]
-        // Error: "One or both email addresses were not found." [Re-check]
-        // Error: "They already have a subscription" [Re-check]
-        // Error: "subscribeTo and target email addresses cannot be the same." [Re-check]
-        try {
-            if (isValidEmail(subscriberEmail)) {
-                throw new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, subscriberEmail));
-            } else if (isValidEmail(targetEmail)) {
-                throw new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, targetEmail));
-            } else {
-                Flux<User> subscriberUser = userReactiveDao.findByEmail(subscriberEmail).flux();
-                Flux<User> targetUser = userReactiveDao.findByEmail(targetEmail).flux();
-                return subscriberUser
-                        .concatMap(subscriber -> targetUser
-                                .concatMap(target -> {
-                                    // Check if the subscription already exists
-                                    return subscriptionReactiveDao.findBySubscriberIdAndTargetId(subscriber.getUserId(), target.getUserId())
-                                            .flatMap(existingSubscription -> {
-                                                SubscribeToUpdates subscribeToUpdates = new SubscribeToUpdates();
-                                                ResponseObject responseObject = new ResponseObject();
-                                                responseObject.setSuccess(SUCCESS);
-                                                responseObject.setMessage("They already have a subscription.");
-                                                responseObject.setResult(subscribeToUpdates);
-                                                return Mono.just(ResponseEntity.ok().body(responseObject));
-                                            })
-                                            .switchIfEmpty(
-                                                    // Create a new subscription
-                                                    subscriptionReactiveDao.save(new Subscription(subscriber.getUserId(), target.getUserId()))
-                                                            .map(savedSubscription -> {
-                                                                SubscribeToUpdates subscribeToUpdates = new SubscribeToUpdates();
-                                                                subscribeToUpdates.setSubscription(savedSubscription);
-                                                                return savedSubscription;
-                                                            })
-                                                            .map(savedSubscription -> {
-                                                                ResponseObject responseObject = new ResponseObject();
-                                                                responseObject.setSuccess(SUCCESS);
-                                                                responseObject.setMessage("Subscribed successfully.");
-                                                                responseObject.setResult(savedSubscription);
-                                                                return ResponseEntity.ok().body(responseObject);
-                                                            })
-                                            );
-                                })
-                                // If the target user is not found
-                                .switchIfEmpty(Mono.defer(() -> {
-                                    ResponseObject responseObject = new ResponseObject();
-                                    responseObject.setSuccess(SUCCESS);
-                                    responseObject.setMessage("Target user not found.");
-                                    return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseObject));
-                                }))
-                        )
-                        // If the subscriber user is not found
-                        .switchIfEmpty(Mono.defer(() -> {
-                            ResponseObject responseObject = new ResponseObject();
-                            responseObject.setSuccess(SUCCESS);
-                            responseObject.setMessage("Subscriber user not found.");
-                            return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseObject));
-                        }))
-                        .single(); // Convert the Flux to a Mono
-            }
-        } catch (InvalidEmailException ex) {
-            logger.error("Error while subscribing to updates {} and {}", subscriberEmail, targetEmail, ex);
-            ResponseObject responseObject = new ResponseObject();
-            responseObject.setSuccess(UNSUCCESS);
-            responseObject.setMessage(ex.getMessage());
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseObject));
-        }
+    public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(SubscribeUpdatesDTO.Request request) throws InvalidEmailException {
+
+        return Mono.just(request)
+                .filter(email1 -> isValidEmail(request.getEmail1()))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail1()))))
+                .filter(email2 -> isValidEmail(request.getEmail2()))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail2()))))
+                .flatMap(req -> {
+                    Flux<User> subscriberUser = userReactiveDao.findByEmail(req.getEmail1()).flux();
+                    Flux<User> targetUser = userReactiveDao.findByEmail(req.getEmail2()).flux();
+                    Flux<ResponseObject> response = subscriberUser
+                            .concatMap(subscriber -> targetUser
+                                    .concatMap(target -> {
+                                        // Check if the subscription already exists
+                                        return subscriptionReactiveDao.findBySubscriberIdAndTargetId(subscriber.getUserId(), target.getUserId())
+                                                .flatMap(existingSubscription -> Mono.just(ResponseObject.builder()
+                                                                .success(SUCCESS)
+                                                                .result(existingSubscription)
+                                                                .message("They already have a subscription.")
+                                                                .build()
+                                                        )
+                                                )
+                                                .switchIfEmpty(
+                                                        // Create a new subscription
+                                                        subscriptionReactiveDao.save(new Subscription(subscriber.getUserId(), target.getUserId()))
+                                                                .map(
+                                                                        savedSubscription -> SubscribeUpdatesDTO.Response.builder()
+                                                                                .subscription(savedSubscription)
+                                                                                .build()
+                                                                )
+                                                                .map(
+                                                                        savedSubscription -> ResponseObject.builder()
+                                                                                .message("Subscribed successfully.")
+                                                                                .result(savedSubscription)
+                                                                                .success(SUCCESS)
+                                                                                .build()
+                                                                )
+                                                );
+                                    })
+                                    // If the target user is not found
+                                    .switchIfEmpty(
+                                            Mono.defer(() -> Mono.just(ResponseObject.builder()
+                                                    .success(SUCCESS)
+                                                    .message("Target user not found.")
+                                                    .build()))
+                                    )
+                            )
+                            // If the subscriber user is not found
+                            .switchIfEmpty(
+                                    Mono.defer(() -> Mono.just(ResponseObject.builder()
+                                            .success(SUCCESS)
+                                            .message("Subscriber user not found.")
+                                            .build()))
+                            );
+                    return response.next() // Get the first (and only) element from the Flux
+                            .map(resObject -> ResponseEntity.status(HttpStatus.OK).body(resObject));
+                })
+                .onErrorResume(ex -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        ResponseObject.builder()
+                                .message(ex.getMessage())
+                                .build()))
+
+                );
     }
 
 
