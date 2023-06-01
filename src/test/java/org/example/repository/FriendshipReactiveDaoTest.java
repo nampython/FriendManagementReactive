@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DataR2dbcTest
 @RunWith(SpringRunner.class)
@@ -26,52 +26,62 @@ public class FriendshipReactiveDaoTest extends TestCase {
         int userId = 1;
         String status = "accepted";
 
-        Friendship friendship1 = new Friendship();
-        friendship1.setFriendshipId(1);
-        friendship1.setStatus("accepted");
-        friendship1.setUserId(1);
-        friendship1.setFriendshipId(2);
+        Friendship expectedFriendship1 = new Friendship();
+        expectedFriendship1.setFriendshipId(1);
+        expectedFriendship1.setStatus("accepted");
+        expectedFriendship1.setUserId(1);
+        expectedFriendship1.setFriendshipId(2);
 
-        Friendship friendship2 = new Friendship();
-        friendship2.setFriendshipId(1);
-        friendship2.setStatus("accepted");
-        friendship2.setUserId(1);
-        friendship2.setFriendshipId(3);
+        Friendship expectedFriendship2 = new Friendship();
+        expectedFriendship2.setFriendshipId(1);
+        expectedFriendship2.setStatus("accepted");
+        expectedFriendship2.setUserId(1);
+        expectedFriendship2.setFriendshipId(3);
 
         // Mock
+
         when(friendshipReactiveDao.findByUserIdAndStatus(anyInt(), anyString()))
-                .thenReturn(Flux.just(friendship1, friendship2));
+                .thenReturn(Flux.just(expectedFriendship1, expectedFriendship2));
 
         // Invoke method
-        Flux<Friendship> result = friendshipReactiveDao.findByUserIdAndStatus(userId, status);
+
+        Flux<Friendship> actualFriendship = friendshipReactiveDao.findByUserIdAndStatus(userId, status);
 
         // Verify the result
-        StepVerifier.create(result)
-                .expectNext(friendship1)
-                .expectNext(friendship2)
+
+        StepVerifier.create(actualFriendship)
+                .expectNext(expectedFriendship1)
+                .expectNext(expectedFriendship2)
                 .verifyComplete();
+        verify(friendshipReactiveDao, times(1)).findByUserIdAndStatus(userId, status);
     }
 
     @Test
     public void testFindByUserIdAndFriendId() {
         // Prepare for data
+
         int userId = 1;
         int friendId = 2;
 
-        Friendship friendship = new Friendship();
-        friendship.setUserId(userId);
-        friendship.setFriendId(friendId);
+        Friendship expectFriendship = new Friendship();
+        expectFriendship.setUserId(userId);
+        expectFriendship.setFriendId(friendId);
 
         // Mock
+
         when(friendshipReactiveDao.findByUserIdAndFriendId(eq(userId), eq(friendId)))
-                .thenReturn(Mono.just(friendship));
+                .thenReturn(Mono.just(expectFriendship));
 
         // Invoke method
-        Mono<Friendship> result = friendshipReactiveDao.findByUserIdAndFriendId(userId, friendId);
+
+        Mono<Friendship> actualFriendship = friendshipReactiveDao.findByUserIdAndFriendId(userId, friendId);
 
         // Verify the result
-        StepVerifier.create(result)
-                .expectNext(friendship)
+
+        StepVerifier.create(actualFriendship)
+                .expectNext(expectFriendship)
                 .verifyComplete();
+        verify(friendshipReactiveDao, times(1)).findByUserIdAndFriendId(userId, friendId);
+
     }
 }

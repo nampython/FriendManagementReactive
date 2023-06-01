@@ -12,7 +12,7 @@ import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @DataR2dbcTest
@@ -24,42 +24,53 @@ public class UserReactiveDaoTest extends TestCase {
     @Test
     public void testFindByEmail() {
         // Prepare for data
+
         String email = "andy@example.com";
 
-        User user = new User();
-        user.setUserId(1);
-        user.setEmail(email);
+        User expectUser = new User();
+        expectUser.setUserId(1);
+        expectUser.setEmail(email);
 
         // Mock
-        when(userReactiveDao.findByEmail(anyString())).thenReturn(Mono.just(user));
+
+        when(userReactiveDao.findByEmail(email))
+                .thenReturn(Mono.just(expectUser));
 
         // Invoke method
-        Mono<User> result = userReactiveDao.findByEmail(email);
+
+        Mono<User> actualUser = userReactiveDao.findByEmail(email);
 
         // Verify the result
-        StepVerifier.create(result)
-                .expectNext(user)
-                .verifyComplete();
 
+        verify(userReactiveDao, times(1)).findByEmail(email);
+
+        StepVerifier.create(actualUser)
+                .expectNext(expectUser)
+                .verifyComplete();
     }
 
     @Test
     public void testFindByUserId() {
         // Prepare for data
+
         int userId = 1;
 
-        User user = new User();
-        user.setUserId(userId);
+        User expectUser = new User();
+        expectUser.setUserId(userId);
 
         // Mock
-        when(userReactiveDao.findByUserId(anyInt())).thenReturn(Mono.just(user));
+        when(userReactiveDao.findByUserId(anyInt()))
+                .thenReturn(Mono.just(expectUser));
 
         // Invoke method
-        Mono<User> result = userReactiveDao.findByUserId(userId);
+        Mono<User> actualUser = userReactiveDao.findByUserId(userId);
 
         // Verify the result
-        StepVerifier.create(result)
-                .expectNext(user)
+
+        verify(userReactiveDao, times(1)).findByUserId(userId);
+
+        StepVerifier.create(actualUser)
+                .expectNext(expectUser)
                 .verifyComplete();
     }
 }
