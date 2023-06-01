@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 public class CustomerReactiveController {
     private final FriendShipReactiveService friendShipReactiveService;
     private static final String VERSION_API = "/v1";
-    private static final String GET_FRIENDS = VERSION_API +  "/friends";
+    private static final String GET_FRIENDS = VERSION_API +  "/user/friends";
     private static final String GET_COMMON_FRIEND = VERSION_API+ "/user/common";
     private static final String CREATE_FRIEND = VERSION_API + "/user/connect";
     private static final String GET_UPDATE_EMAIL = VERSION_API + "/user/updatable";
