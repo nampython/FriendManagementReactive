@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DataR2dbcTest
 @RunWith(SpringRunner.class)
@@ -25,21 +25,23 @@ public class SubscriptionReactiveDaoTest extends TestCase {
         int subscriberId = 1;
         int targetId = 2;
 
-        Subscription subscription = new Subscription();
-        subscription.setSubscriberId(subscriberId);
-        subscription.setTargetId(targetId);
+        Subscription expectedsubscription = new Subscription();
+        expectedsubscription.setSubscriberId(subscriberId);
+        expectedsubscription.setTargetId(targetId);
 
         // Mock
         when(subscriptionReactiveDao.findBySubscriberIdAndTargetId(eq(subscriberId), eq(targetId)))
-                .thenReturn(Mono.just(subscription));
+                .thenReturn(Mono.just(expectedsubscription));
 
         // Invoke method
-        Mono<Subscription> result = subscriptionReactiveDao.findBySubscriberIdAndTargetId(subscriberId, targetId);
+        Mono<Subscription> actualSubscription = subscriptionReactiveDao.findBySubscriberIdAndTargetId(subscriberId, targetId);
 
         // Verify the result
-        StepVerifier.create(result)
-                .expectNext(subscription)
+        StepVerifier.create(actualSubscription)
+                .expectNext(expectedsubscription)
                 .verifyComplete();
+
+        verify(subscriptionReactiveDao, times(1)).findBySubscriberIdAndTargetId(subscriberId, targetId);
     }
 
     @Test
@@ -48,20 +50,22 @@ public class SubscriptionReactiveDaoTest extends TestCase {
         int subscriberId = 1;
         int targetId = 2;
 
-        Subscription subscription = new Subscription();
-        subscription.setSubscriberId(subscriberId);
-        subscription.setTargetId(targetId);
+        Subscription expectedsubscription = new Subscription();
+        expectedsubscription.setSubscriberId(subscriberId);
+        expectedsubscription.setTargetId(targetId);
 
         // Mock
         when(subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(eq(subscriberId), eq(targetId)))
-                .thenReturn(Mono.just(subscription));
+                .thenReturn(Mono.just(expectedsubscription));
 
         // Invoke method
-        Mono<Subscription> result = subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(subscriberId, targetId);
+        Mono<Subscription> actualSubscription = subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(subscriberId, targetId);
 
         // Verify the result
-        StepVerifier.create(result)
-                .expectNext(subscription)
+        StepVerifier.create(actualSubscription)
+                .expectNext(expectedsubscription)
                 .verifyComplete();
+
+        verify(subscriptionReactiveDao, times(1)).deleteBySubscriberIdAndTargetId(subscriberId, targetId);
     }
 }
