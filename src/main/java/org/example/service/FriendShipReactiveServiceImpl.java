@@ -1,6 +1,5 @@
 package org.example.service;
 
-import lombok.extern.log4j.Log4j;
 import org.example.dto.CommonFriendDTO;
 import org.example.dto.EligibleEmailAddressesDTO;
 import org.example.dto.FriendConnection;
@@ -65,6 +64,8 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     @Override
     public Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(FriendListDTO.Request request) throws InvalidEmailException {
         return Mono.just(request.getEmail())
+                // to switch to the blocking context
+//                .publishOn(Schedulers.boundedElastic())
                 .filter(this::isValidEmail)
                 .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail()))))
                 .flatMap(email -> userReactiveDao.findByEmail(email)
@@ -84,9 +85,8 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                         .success(SUCCESS)
                                         .result(friendList)
                                         .build()
-                        ))
-                )
-                .onErrorResume(ex -> Mono.just(ResponseEntity.badRequest().body(
+                        )))
+                .onErrorResume(ex -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                         ResponseObject.builder()
                                 .message(ex.getMessage())
                                 .build()))
@@ -116,7 +116,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      * @param email Check if the email is valid;
      * @return True if email is valid and contrast
      */
-    private boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) {
         return Boolean.TRUE.equals(EMAIL_PATTERN.matcher(email).matches());
     }
 
@@ -134,6 +134,8 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
         // Bug 1: In case of 2 email not founding the common lis of friend -> the response does not return anything.
 
         return Mono.just(request)
+                //Possibly blocking call in non-blocking context could lead to thread starvation
+//                .publishOn(Schedulers.boundedElastic())
                 .filter(email1 -> isValidEmail(request.getEmail1()))
                 .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail1()))))
                 .filter(email2 -> isValidEmail(request.getEmail2()))
@@ -372,12 +374,11 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                     )
                                     .map(User::getEmail)
                                     .collectList()
-                                    .map(emails -> {
-                                        UpdateEmail updateEmail = new UpdateEmail();
-                                        updateEmail.setFriends(emails);
-                                        updateEmail.setCount(emails.size());
-                                        return updateEmail;
-                                    })
+                                    .map(emails -> EligibleEmailAddressesDTO.Response
+                                            .builder()
+                                            .friends(emails)
+                                            .count(emails.size())
+                                            .build())
                                     .map(emails -> {
                                         ResponseObject responseObject = new ResponseObject();
                                         responseObject.setMessage("Friend list retrieved successfully.");
