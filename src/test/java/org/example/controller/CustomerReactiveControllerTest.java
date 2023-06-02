@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.dto.*;
 import org.example.model.CommonFriend;
 import org.example.model.FriendList;
 import org.example.model.ResponseObject;
@@ -14,17 +15,17 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(CustomerReactiveController.class)
@@ -52,27 +53,33 @@ public class CustomerReactiveControllerTest {
         String friend2 = "john@example.com";
         List<String> friends = Arrays.asList(friend1, friend2);
 
+        FriendListDTO.Response expecResponse = FriendListDTO.Response.builder()
+                .friends(friends)
+                .count(friends.size())
+                .build();
 
-        FriendList friendList = new FriendList();
-        friendList.setFriends(friends);
-        friendList.setCount(friends.size());
-
-        ResponseObject responseObject = new ResponseObject();
-        responseObject.setMessage("Friend list retrieved successfully.");
-        responseObject.setSuccess("true");
-        responseObject.setResult(friendList);
+        ResponseObject expectResponseObject = new ResponseObject();
+        expectResponseObject.setMessage("Friend list retrieved successfully.");
+        expectResponseObject.setSuccess("true");
+        expectResponseObject.setResult(expecResponse);
 
 
         // Mock
-        when(friendShipReactiveService.getFriendsListByEmail(any()))
-                .thenReturn(Mono.just(ResponseEntity.ok().body(responseObject)));
+
+        FriendListDTO.Request request = FriendListDTO.Request.builder()
+                .email("kate@example.com")
+                .build();
+
+        when(friendShipReactiveService.getFriendsListByEmail(request))
+                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(expectResponseObject)));
 
         // Verify the response
 
         webClient
-                .get()
-                .uri("/v1/user/friends?email=test@example.com")
+                .post()
+                .uri("/v1/user/friends")
                 .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -87,38 +94,45 @@ public class CustomerReactiveControllerTest {
     public void getCommonFriends() {
         // Prepare for Data
 
-        String friend1 = "andy@example.com";
-        String friend2 = "john@example.com";
-        List<String> commonFriends = Arrays.asList(friend1, friend2);
+        String friend1 = "friend1@example.com";
+        String friend2 = "friend2@example.com";
+        List<String> expectedFriends = Arrays.asList(friend1, friend2);
 
-        CommonFriend commonFriend = new CommonFriend();
-        commonFriend.setFriends(commonFriends);
-        commonFriend.setCount(commonFriends.size());
+        CommonFriendDTO.Response expectedResponse = CommonFriendDTO.Response.builder()
+                .friends(expectedFriends)
+                .count(expectedFriends.size())
+                .build();
+
 
         ResponseObject responseObject = new ResponseObject();
         responseObject.setMessage("Common Friend list retrieved successfully.");
         responseObject.setSuccess("true");
-        responseObject.setResult(commonFriend);
+        responseObject.setResult(expectedResponse);
 
         // Mock
 
-        when(friendShipReactiveService.getCommonFriends(anyString(), anyString()))
-                .thenReturn(Mono.just(ResponseEntity.ok().body(responseObject)));
+        CommonFriendDTO.Request request = CommonFriendDTO.Request.builder()
+                .email1("john@example.com")
+                .email2("andy@example.com")
+                .build();
+        when(friendShipReactiveService.getCommonFriends(request))
+                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(responseObject)));
 
         // Verify the response
 
         webClient
-                .get()
-                .uri("/v1/user/common?email1=test1@example.com&email2=test2@example.com")
+                .post()
+                .uri("/v1/user/common")
                 .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.success").isEqualTo("true")
                 .jsonPath("$.message").isEqualTo("Common Friend list retrieved successfully.")
                 .jsonPath("$.result.count").isEqualTo(2)
-                .jsonPath("$.result.friends[0]").isEqualTo("andy@example.com")
-                .jsonPath("$.result.friends[1]").isEqualTo("john@example.com");
+                .jsonPath("$.result.friends[0]").isEqualTo("friend1@example.com")
+                .jsonPath("$.result.friends[1]").isEqualTo("friend2@example.com");
 
     }
 
@@ -126,19 +140,24 @@ public class CustomerReactiveControllerTest {
     public void createConnectionFriend() {
         // Prepare for data
 
-        Friendship friendship = new Friendship();
-        friendship.setUserId(1);
-        friendship.setFriendId(2);
+        Friendship expectedFriendship = Friendship.builder()
+                .userId(1)
+                .friendId(2)
+                .build();
 
         ResponseObject responseObject = new ResponseObject();
         responseObject.setMessage("The connection is established successfully.");
         responseObject.setSuccess("true");
-        responseObject.setResult(friendship);
+        responseObject.setResult(expectedFriendship);
 
         // Mock
 
-        when(friendShipReactiveService.createFriendConnection(anyString(), anyString()))
-                .thenReturn(Mono.just(ResponseEntity.ok().body(responseObject)));
+        FriendConnection.Request request = FriendConnection.Request.builder()
+                .email1("andy@example.com")
+                .email2("john@example.com")
+                .build();
+        when(friendShipReactiveService.createFriendConnection(request))
+                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(responseObject)));
 
         // Verify the response
 
@@ -146,6 +165,7 @@ public class CustomerReactiveControllerTest {
                 .post()
                 .uri("/v1/user/connect?email1=andy@example.com&email2=kate@example.com")
                 .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -161,36 +181,43 @@ public class CustomerReactiveControllerTest {
 
         int subscriberEmailId = 1;
         int targetEmailId = 2;
-        Subscription subscription = new Subscription();
-        subscription.setSubscriberId(subscriberEmailId);
-        subscription.setTargetId(targetEmailId);
+        Subscription expectedsubscription = new Subscription();
+        expectedsubscription.setSubscriberId(subscriberEmailId);
+        expectedsubscription.setTargetId(targetEmailId);
+
+        SubscribeUpdatesDTO.Response expectResponse = SubscribeUpdatesDTO.Response.builder()
+                .subscription(expectedsubscription)
+                .build();
 
         ResponseObject responseObject = new ResponseObject();
         responseObject.setMessage("Subscribed successfully.");
-        responseObject.setResult(subscription);
+        responseObject.setResult(expectResponse);
         responseObject.setSuccess("true");
 
         // Mock
-        when(friendShipReactiveService.subscribeToUpdates(anyString(), anyString()))
+
+        SubscribeUpdatesDTO.Request request = SubscribeUpdatesDTO.Request.builder()
+                .email1("andy@example.com")
+                .email2("john@example.com")
+                .build();
+
+        when(friendShipReactiveService.subscribeToUpdates(request))
                 .thenReturn(Mono.just(ResponseEntity.ok().body(responseObject)));
 
         // Verify the response
 
         webClient
                 .post()
-                .uri("/v1/user/subscribe?email1=john@example.com&email2=andy@example.com")
+                .uri("/v1/user/subscribe")
                 .accept(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.success").isEqualTo("true")
                 .jsonPath("$.message").isEqualTo("Subscribed successfully.")
-                .jsonPath("$.result.subscriberId").isEqualTo(1)
-                .jsonPath("$.result.targetId").isEqualTo(2);
-    }
-
-    @Test
-    public void block() {
+                .jsonPath("$.result.subscription.subscriberId").isEqualTo(1)
+                .jsonPath("$.result.subscription.targetId").isEqualTo(2);
     }
 
     @Test
@@ -199,26 +226,33 @@ public class CustomerReactiveControllerTest {
 
         String friend1 = "andy@example.com";
         String friend2 = "john@example.com";
-        List<String> friends = Arrays.asList(friend1, friend2);
+        List<String> expectedFriends = Arrays.asList(friend1, friend2);
 
-        UpdateEmail updateEmail = new UpdateEmail();
-        updateEmail.setFriends(friends);
-        updateEmail.setCount(friends.size());
+        EligibleEmailAddressesDTO.Response expectedResponse = EligibleEmailAddressesDTO.Response
+                .builder()
+                .friends(expectedFriends)
+                .count(expectedFriends.size())
+                .build();
 
-        ResponseObject responseObject = new ResponseObject();
-        responseObject.setMessage("Friend list retrieved successfully.");
-        responseObject.setSuccess("true");
-        responseObject.setResult(updateEmail);
+        ResponseObject expectedResponseObject = new ResponseObject();
+        expectedResponseObject.setMessage("Friend list retrieved successfully.");
+        expectedResponseObject.setSuccess("true");
+        expectedResponseObject.setResult(expectedResponse);
 
         // Mock
-        when(friendShipReactiveService.getEligibleEmailAddresses(anyString()))
-                .thenReturn(Mono.just(ResponseEntity.ok().body(responseObject)));
+
+        EligibleEmailAddressesDTO.Request request = EligibleEmailAddressesDTO.Request.builder()
+                .email("test1@gmail.com")
+                .build();
+        when(friendShipReactiveService.getEligibleEmailAddresses(request))
+                .thenReturn(Mono.just(ResponseEntity.ok().body(expectedResponseObject)));
 
         // Verify the response
 
         webClient
-                .get()
-                .uri("/v1/user/updatable?email=andy@example.com")
+                .post()
+                .uri("/v1/user/updatable")
+                .body(BodyInserters.fromValue(request))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
