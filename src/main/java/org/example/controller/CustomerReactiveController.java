@@ -33,7 +33,7 @@ public class CustomerReactiveController {
      * @param request Email that wants to get the friend list of this email
      * @return A flux&lt;string&gt; object
      */
-    @GetMapping(value = GET_FRIENDS, produces = "application/json")
+    @PostMapping(value = GET_FRIENDS)
     public Mono<ResponseEntity<ResponseObject>> getFriendList(@RequestBody FriendListDTO.Request request) {
         return friendShipReactiveService.getFriendsListByEmail(request);
     }
@@ -46,7 +46,7 @@ public class CustomerReactiveController {
      *
      * @return A list of email addresses that are common to both friends
      */
-    @GetMapping(value = GET_COMMON_FRIEND, produces = "application/json")
+    @PostMapping(value = GET_COMMON_FRIEND)
     public Mono<ResponseEntity<ResponseObject>> getCommonFriends(@RequestBody CommonFriendDTO.Request request) {
         return friendShipReactiveService.getCommonFriends(request);
     }
@@ -59,7 +59,7 @@ public class CustomerReactiveController {
      *
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt&gt;
      */
-    @PostMapping(value = CREATE_FRIEND, produces = "application/json")
+    @PostMapping(value = CREATE_FRIEND)
     public Mono<ResponseEntity<ResponseObject>> createConnectionFriend(@RequestBody FriendConnection.Request request) {
         return friendShipReactiveService.createFriendConnection(request);
     }
@@ -97,7 +97,7 @@ public class CustomerReactiveController {
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
      *
      */
-    @GetMapping(value = GET_UPDATE_EMAIL, produces = "application/json")
+    @PostMapping(value = GET_UPDATE_EMAIL)
     public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(@RequestBody EligibleEmailAddressesDTO.Request request) {
         return friendShipReactiveService.getEligibleEmailAddresses(request);
     }
