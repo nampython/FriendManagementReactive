@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,8 +48,8 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         // Prepare for data
 
         String email = "test@example.com";
-        User user = new User();
 
+        User user = new User();
         user.setUserId(1);
         user.setEmail(email);
 
@@ -95,6 +96,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .build();
 
         Response expectedResponse = Response.builder()
+                .method(HttpMethod.POST)
                 .message("Friend list retrieved successfully.")
                 .success("true")
                 .result(expectedResponseDTO)
@@ -404,7 +406,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         Response expectedResponse = Response.builder()
                 .result(null)
                 .success("true")
-                .message("They are already friends. There is no need to create a new friend connection.")
+                .message(String.format("%s and %s are already friends. There is no need to create a new friend connection.", email1, email2))
                 .build();
 
         ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
@@ -440,7 +442,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         Response expectedResponse = Response.builder()
                 .result(null)
                 .success("true")
-                .message("One of the email address is not found.")
+                .message(String.format("Cannot find email {%s}. Please try another email", email2))
                 .build();
 
         ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
@@ -482,7 +484,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         Response expectedResponse = Response.builder()
                 .result(null)
                 .success("true")
-                .message("One of the email address is not found.")
+                .message(String.format("Cannot find email {%s}. Please try another email", email2))
                 .build();
 
         ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
@@ -687,7 +689,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         // Verify the result
 
         Response expectResponse = Response.builder()
-                .message("Subscriber user not found.")
+                .message(String.format("Subscriber user {%s} not found, please try another email.", email1))
                 .success("true")
                 .build();
 
@@ -729,7 +731,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         // Verify the result
 
         Response expectResponse = Response.builder()
-                .message("Target user not found.")
+                .message(String.format("Target user {%s} not found, please try another email.", email2))
                 .success("true")
                 .build();
 
@@ -811,9 +813,14 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         // Verify the result
 
         Response expectedResponse = Response.builder()
-                .message("Friend list retrieved successfully.")
+                .message("Retrieves the list successfully.")
                 .success("true")
-                .result(Arrays.asList(targetEmail1, targetEmail2))
+                .result(
+                        EligibleEmailAddressesDTO.Response.builder()
+                                .friends(Arrays.asList(targetEmail2))
+                                .count(1)
+                                .build()
+                )
                 .build();
 
         ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
@@ -824,9 +831,67 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .verifyComplete();
     }
 
-
+    @Test
     public void testBlockUpdates() {
+
+        // Prepare for data
+
+        String email1 = "andy@example.com";
+        String email2 = "andy@example.com";
+
+
+        User expectedUser1 = User.builder()
+                .userId(1)
+                .email(email1)
+                .build();
+        User expectedUser2 = User.builder()
+                .userId(2)
+                .email(email2)
+                .build();
+
+        Friendship expectedFriendShip = Friendship.builder()
+                .friendshipId(1)
+                .userId(1)
+                .friendId(2)
+                .build();
+
+        // Mock
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.just(expectedUser1));
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.just(expectedUser2));
+
+        when(friendshipReactiveDao.findByUserIdAndFriendId(1, 2))
+                .thenReturn(Mono.just(expectedFriendShip));
+
+        when(subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(1, 2))
+                .thenReturn(Mono.empty());
+
+        // Invoke method
+
+        BlockUpdateDTO.Request request = BlockUpdateDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.blockUpdates(request);
+
+
+        // Verify
+
+        Response expectedResponse = Response.builder()
+                .success("true")
+                .method(HttpMethod.POST)
+                .message(String.format(String.format("{%s} blocks {%s} successfully.", email1, email2)))
+                .build();
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
+
     }
-
-
 }
