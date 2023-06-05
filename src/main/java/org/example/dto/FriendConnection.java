@@ -17,7 +17,6 @@ public interface FriendConnection {
         private String email2;
     }
 
-
     @NoArgsConstructor
     @AllArgsConstructor
     @Data

@@ -16,7 +16,6 @@ public interface FriendListDTO {
         private String email;
     }
 
-
     @NoArgsConstructor
     @AllArgsConstructor
     @Data

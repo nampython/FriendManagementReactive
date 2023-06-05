@@ -34,7 +34,7 @@ public class CustomerReactiveController {
      * @return A flux&lt;string&gt; object
      */
     @PostMapping(value = GET_FRIENDS)
-    public Mono<ResponseEntity<ResponseObject>> getFriendList(@RequestBody FriendListDTO.Request request) {
+    public Mono<ResponseEntity<Response>> getFriendList(@RequestBody FriendListDTO.Request request) {
         return friendShipReactiveService.getFriendsListByEmail(request);
     }
 
@@ -47,7 +47,7 @@ public class CustomerReactiveController {
      * @return A list of email addresses that are common to both friends
      */
     @PostMapping(value = GET_COMMON_FRIEND)
-    public Mono<ResponseEntity<ResponseObject>> getCommonFriends(@RequestBody CommonFriendDTO.Request request) {
+    public Mono<ResponseEntity<Response>> getCommonFriends(@RequestBody CommonFriendDTO.Request request) {
         return friendShipReactiveService.getCommonFriends(request);
     }
 
@@ -60,7 +60,7 @@ public class CustomerReactiveController {
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt&gt;
      */
     @PostMapping(value = CREATE_FRIEND)
-    public Mono<ResponseEntity<ResponseObject>> createConnectionFriend(@RequestBody FriendConnection.Request request) {
+    public Mono<ResponseEntity<Response>> createConnectionFriend(@RequestBody FriendConnection.Request request) {
         return friendShipReactiveService.createFriendConnection(request);
     }
 
@@ -73,7 +73,7 @@ public class CustomerReactiveController {
      *
      */
     @PostMapping(value = SUBSCRIBE_TO_UPDATE)
-    public Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(@RequestBody SubscribeUpdatesDTO.Request request) {
+    public Mono<ResponseEntity<Response>> subscribeToUpdates(@RequestBody SubscribeUpdatesDTO.Request request) {
         return friendShipReactiveService.subscribeToUpdates(request);
     }
 
@@ -98,7 +98,7 @@ public class CustomerReactiveController {
      *
      */
     @PostMapping(value = GET_UPDATE_EMAIL)
-    public Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(@RequestBody EligibleEmailAddressesDTO.Request request) {
+    public Mono<ResponseEntity<Response>> getEligibleEmailAddresses(@RequestBody EligibleEmailAddressesDTO.Request request) {
         return friendShipReactiveService.getEligibleEmailAddresses(request);
     }
 }

@@ -1,10 +1,7 @@
 package org.example.controller;
 
 import org.example.dto.*;
-import org.example.model.CommonFriend;
-import org.example.model.FriendList;
-import org.example.model.ResponseObject;
-import org.example.model.UpdateEmail;
+import org.example.model.Response;
 import org.example.model.friends.Friendship;
 import org.example.model.friends.Subscription;
 import org.example.service.FriendShipReactiveService;
@@ -58,10 +55,10 @@ public class CustomerReactiveControllerTest {
                 .count(friends.size())
                 .build();
 
-        ResponseObject expectResponseObject = new ResponseObject();
-        expectResponseObject.setMessage("Friend list retrieved successfully.");
-        expectResponseObject.setSuccess("true");
-        expectResponseObject.setResult(expecResponse);
+        Response expectResponse = new Response();
+        expectResponse.setMessage("Friend list retrieved successfully.");
+        expectResponse.setSuccess("true");
+        expectResponse.setResult(expecResponse);
 
 
         // Mock
@@ -71,7 +68,7 @@ public class CustomerReactiveControllerTest {
                 .build();
 
         when(friendShipReactiveService.getFriendsListByEmail(request))
-                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(expectResponseObject)));
+                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(expectResponse)));
 
         // Verify the response
 
@@ -104,10 +101,10 @@ public class CustomerReactiveControllerTest {
                 .build();
 
 
-        ResponseObject responseObject = new ResponseObject();
-        responseObject.setMessage("Common Friend list retrieved successfully.");
-        responseObject.setSuccess("true");
-        responseObject.setResult(expectedResponse);
+        Response response = new Response();
+        response.setMessage("Common Friend list retrieved successfully.");
+        response.setSuccess("true");
+        response.setResult(expectedResponse);
 
         // Mock
 
@@ -116,7 +113,7 @@ public class CustomerReactiveControllerTest {
                 .email2("andy@example.com")
                 .build();
         when(friendShipReactiveService.getCommonFriends(request))
-                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(responseObject)));
+                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(response)));
 
         // Verify the response
 
@@ -145,10 +142,10 @@ public class CustomerReactiveControllerTest {
                 .friendId(2)
                 .build();
 
-        ResponseObject responseObject = new ResponseObject();
-        responseObject.setMessage("The connection is established successfully.");
-        responseObject.setSuccess("true");
-        responseObject.setResult(expectedFriendship);
+        Response response = new Response();
+        response.setMessage("The connection is established successfully.");
+        response.setSuccess("true");
+        response.setResult(expectedFriendship);
 
         // Mock
 
@@ -157,7 +154,7 @@ public class CustomerReactiveControllerTest {
                 .email2("john@example.com")
                 .build();
         when(friendShipReactiveService.createFriendConnection(request))
-                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(responseObject)));
+                .thenReturn(Mono.just(ResponseEntity.status(HttpStatus.OK).body(response)));
 
         // Verify the response
 
@@ -189,10 +186,10 @@ public class CustomerReactiveControllerTest {
                 .subscription(expectedsubscription)
                 .build();
 
-        ResponseObject responseObject = new ResponseObject();
-        responseObject.setMessage("Subscribed successfully.");
-        responseObject.setResult(expectResponse);
-        responseObject.setSuccess("true");
+        Response response = new Response();
+        response.setMessage("Subscribed successfully.");
+        response.setResult(expectResponse);
+        response.setSuccess("true");
 
         // Mock
 
@@ -202,7 +199,7 @@ public class CustomerReactiveControllerTest {
                 .build();
 
         when(friendShipReactiveService.subscribeToUpdates(request))
-                .thenReturn(Mono.just(ResponseEntity.ok().body(responseObject)));
+                .thenReturn(Mono.just(ResponseEntity.ok().body(response)));
 
         // Verify the response
 
@@ -234,7 +231,7 @@ public class CustomerReactiveControllerTest {
                 .count(expectedFriends.size())
                 .build();
 
-        ResponseObject expectedResponseObject = new ResponseObject();
+        Response expectedResponseObject = new Response();
         expectedResponseObject.setMessage("Friend list retrieved successfully.");
         expectedResponseObject.setSuccess("true");
         expectedResponseObject.setResult(expectedResponse);
