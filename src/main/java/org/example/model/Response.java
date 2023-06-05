@@ -30,7 +30,7 @@ public class Response {
 
     public static class ResponseBuilder {
         private String success = "true";
-        private HttpMethod method = HttpMethod.GET;
+        private HttpMethod method = HttpMethod.POST;
         private HttpStatus status = HttpStatus.OK;
     }
 }

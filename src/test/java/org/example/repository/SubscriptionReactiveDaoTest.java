@@ -50,22 +50,16 @@ public class SubscriptionReactiveDaoTest extends TestCase {
         int subscriberId = 1;
         int targetId = 2;
 
-        Subscription expectedsubscription = new Subscription();
-        expectedsubscription.setSubscriberId(subscriberId);
-        expectedsubscription.setTargetId(targetId);
 
         // Mock
         when(subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(eq(subscriberId), eq(targetId)))
-                .thenReturn(Mono.just(expectedsubscription));
+                .thenReturn(Mono.empty());
 
         // Invoke method
-        Mono<Subscription> actualSubscription = subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(subscriberId, targetId);
+        Mono<Void> actualSubscription = subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(subscriberId, targetId);
 
         // Verify the result
         StepVerifier.create(actualSubscription)
-                .expectNext(expectedsubscription)
                 .verifyComplete();
-
-        verify(subscriptionReactiveDao, times(1)).deleteBySubscriberIdAndTargetId(subscriberId, targetId);
     }
 }

@@ -42,6 +42,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     private static final String SUBSCRIBER_USER_NOT_FOUND;
     private static final String RETRIEVE_LIST_SUCCESSFULLY;
     private static final String BLOCK_UPDATES;
+    private static final String ALREADY_BLOCKED;
 
     private static final String INVALID_EMAIL_EXCEPTION;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
@@ -68,6 +69,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
         SUCCESSFULLY_ESTABLISH_FRIEND = "The connection is established successfully.";
         RETRIEVE_LIST_SUCCESSFULLY = "Retrieves the list successfully.";
         BLOCK_UPDATES = "{%s} blocks {%s} successfully.";
+        ALREADY_BLOCKED = "{%s} already blocks {%s}.";
     }
 
     // Exception message
@@ -402,48 +404,63 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                     Flux<User> user1 = userReactiveDao.findByEmail(req.getEmail1()).flux();
                     Flux<User> user2 = userReactiveDao.findByEmail(req.getEmail2()).flux();
                     Flux<Response> response = user1.concatMap(u1 ->
-                            user2.concatMap(u2 ->
-                                    {
-                                        Integer userId1 = u1.getUserId();
-                                        Integer userId2 = u2.getUserId();
-                                        return friendshipReactive.findByUserIdAndFriendId(userId1, userId2)
-                                                .flux()
-                                                .concatMap(
-                                                        friendship -> {
-                                                            // They are friends, delete the subscription
-                                                            Mono<Void> subscriberIdAndTargetId = subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(userId1, userId2);
-                                                            return subscriberIdAndTargetId
-                                                                    .flux()
-                                                                    .concatMap(subscription -> Mono.just(Response.builder()
-                                                                            .success(SUCCESS)
-                                                                            .method(HttpMethod.POST)
-                                                                            .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
-                                                                            .build())
-                                                                    ).switchIfEmpty(
-                                                                            Mono.defer(() -> Mono.just(Response.builder()
+                                    user2.concatMap(u2 ->
+                                            {
+                                                Integer userId1 = u1.getUserId();
+                                                Integer userId2 = u2.getUserId();
+                                                return friendshipReactive.findByUserIdAndFriendId(userId1, userId2)
+                                                        .flux()
+                                                        .concatMap(
+                                                                friendship -> {
+                                                                    // They are friends, delete the subscription
+                                                                    Mono<Void> subscriberIdAndTargetId = subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(userId1, userId2);
+                                                                    return subscriberIdAndTargetId
+                                                                            .then(Mono.just(Response.builder()
                                                                                     .success(SUCCESS)
                                                                                     .method(HttpMethod.POST)
-//                                                                                    .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
-                                                                                    .build()))
-                                                                    );
-                                                        }
-                                                )
-                                                .switchIfEmpty(Mono.defer(() -> {
-                                                    // They are not friends, add to the block table
-                                                    return blockReactiveRepository.save(
-                                                            Block.builder()
-                                                                    .blockerId(userId1)
-                                                                    .blockedId(userId2)
-                                                                    .build()
-                                                    ).map(block -> Response.builder()
-                                                            .success(SUCCESS)
-                                                            .method(HttpMethod.POST)
-                                                            .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
-                                                            .build());
-                                                }));
-                                    }
+                                                                                    .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
+                                                                                    .build()));
+                                                                }
+                                                        )
+                                                        .switchIfEmpty(Mono.defer(() -> {
+                                                            // They are not friends, add to the block table
+                                                            return blockReactiveRepository.findByBlockerIdAndBlockedId(userId1, userId2)
+                                                                    .flatMap(exist -> Mono.just(Response.builder()
+                                                                            .success(SUCCESS)
+                                                                            .method(HttpMethod.POST)
+                                                                            .message(String.format(ALREADY_BLOCKED, req.getEmail1(), req.getEmail2()))
+                                                                            .build()))
+                                                                    .switchIfEmpty(Mono.defer(
+                                                                            () -> blockReactiveRepository.save(
+                                                                                    Block.builder()
+                                                                                            .blockerId(userId1)
+                                                                                            .blockedId(userId2)
+                                                                                            .build()
+                                                                            ).map(block -> Response.builder()
+                                                                                    .success(SUCCESS)
+                                                                                    .method(HttpMethod.POST)
+                                                                                    .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
+                                                                                    .build())
+                                                                    ));
+
+
+                                                        }));
+                                            }
+                                    ).switchIfEmpty(Mono.defer(
+                                            () -> Mono.just(Response.builder()
+                                                    .method(HttpMethod.POST)
+                                                    .success(SUCCESS)
+                                                    .message(String.format(EMAIL_NOT_FOUND, req.getEmail2()))
+                                                    .build()
+                                            )))
                             )
-                    );
+                            .switchIfEmpty(Mono.defer(
+                                    () -> Mono.just(Response.builder()
+                                            .method(HttpMethod.POST)
+                                            .success(SUCCESS)
+                                            .message(String.format(EMAIL_NOT_FOUND, req.getEmail1()))
+                                            .build()
+                                    )));
                     return response
                             .next()
                             .map(resObject -> ResponseEntity.status(HttpStatus.OK).body(resObject));
