@@ -11,10 +11,10 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 public interface FriendShipReactiveService {
-    Mono<ResponseEntity<ResponseObject>> getFriendsListByEmail(FriendListDTO.Request request) throws InvalidEmailException;
-    Mono<ResponseEntity<ResponseObject>> getCommonFriends(CommonFriendDTO.Request request) throws InvalidEmailException;
-    Mono<ResponseEntity<ResponseObject>> createFriendConnection(FriendConnection.Request request) throws InvalidEmailException;
-    Mono<ResponseEntity<ResponseObject>> subscribeToUpdates(SubscribeUpdatesDTO.Request request) throws InvalidEmailException;
+    Mono<ResponseEntity<Response>> getFriendsListByEmail(FriendListDTO.Request request) throws InvalidEmailException;
+    Mono<ResponseEntity<Response>> getCommonFriends(CommonFriendDTO.Request request) throws InvalidEmailException;
+    Mono<ResponseEntity<Response>> createFriendConnection(FriendConnection.Request request) throws InvalidEmailException;
+    Mono<ResponseEntity<Response>> subscribeToUpdates(SubscribeUpdatesDTO.Request request) throws InvalidEmailException;
     Mono<Void> blockUpdates(String blockerEmail, String blockedEmail) throws InvalidEmailException;
-    Mono<ResponseEntity<ResponseObject>> getEligibleEmailAddresses(EligibleEmailAddressesDTO.Request request) throws InvalidEmailException;
+    Mono<ResponseEntity<Response>> getEligibleEmailAddresses(EligibleEmailAddressesDTO.Request request) throws InvalidEmailException;
 }

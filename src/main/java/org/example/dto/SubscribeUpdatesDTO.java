@@ -16,7 +16,6 @@ public interface SubscribeUpdatesDTO {
         private String email2;
     }
 
-
     @NoArgsConstructor
     @AllArgsConstructor
     @Data

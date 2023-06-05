@@ -2,7 +2,7 @@ package org.example.service;
 
 import junit.framework.TestCase;
 import org.example.dto.*;
-import org.example.model.ResponseObject;
+import org.example.model.Response;
 import org.example.model.friends.Friendship;
 import org.example.model.friends.Subscription;
 import org.example.model.friends.User;
@@ -83,7 +83,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
         // Invoke method
 
         FriendListDTO.Request request = new FriendListDTO.Request("test@example.com");
-        Mono<ResponseEntity<ResponseObject>> result = friendShipReactiveService.getFriendsListByEmail(request);
+        Mono<ResponseEntity<Response>> result = friendShipReactiveService.getFriendsListByEmail(request);
 
         // Verify the result
 
@@ -94,12 +94,12 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .count(expectedFriends.size())
                 .build();
 
-        ResponseObject expectedResponse = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .message("Friend list retrieved successfully.")
                 .success("true")
                 .result(expectedResponseDTO)
                 .build();
-        ResponseEntity<ResponseObject> expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+        ResponseEntity<Response> expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
 
         StepVerifier.create(result)
                 .expectNext(expectedResponseEntity)
@@ -126,17 +126,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email(invalidEmail)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.getFriendsListByEmail(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.getFriendsListByEmail(request);
 
         // Verify the result
 
-        ResponseObject expectedResponseObject = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .message("Invalid email format {usernamedomain.com}. Please provide a valid email.")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(expectedResponseObject);
+                .body(expectedResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -203,7 +203,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email2(email2)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualCommonFriends = friendShipReactiveService.getCommonFriends(actualRequest);
+        Mono<ResponseEntity<Response>> actualCommonFriends = friendShipReactiveService.getCommonFriends(actualRequest);
 
         // Verify the result
 
@@ -216,13 +216,13 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .count(expectListOfCommonFriends.size())
                 .build();
 
-        ResponseObject expectResponseObject = ResponseObject.builder()
+        Response expectResponse = Response.builder()
                 .success("true")
                 .message("Common Friend list retrieved successfully.")
                 .result(expectedResponse)
                 .build();
 
-        ResponseEntity<ResponseObject> expectResEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponseObject);
+        ResponseEntity<Response> expectResEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
 
         StepVerifier.create(actualCommonFriends)
                 .expectNext(expectResEntity)
@@ -243,17 +243,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email2(invalidEmail2)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.getCommonFriends(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.getCommonFriends(request);
 
         // Verify the result
 
-        ResponseObject expectedResponseObject = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .message("Invalid email format {usernamedomain.com}. Please provide a valid email.")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(expectedResponseObject);
+                .body(expectedResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -303,7 +303,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email1(email1)
                 .email2(email2)
                 .build();
-        Mono<ResponseEntity<ResponseObject>> actualFriendConnection = friendShipReactiveService.createFriendConnection(request);
+        Mono<ResponseEntity<Response>> actualFriendConnection = friendShipReactiveService.createFriendConnection(request);
 
         // Verify the result
 
@@ -313,13 +313,13 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .friendId(2)
                 .build();
 
-        ResponseObject expectedResponse = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .message("The connection is established successfully.")
                 .success("true")
                 .result(expectedFriendship)
                 .build();
 
-        ResponseEntity<ResponseObject> expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+        ResponseEntity<Response> expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
 
         StepVerifier.create(actualFriendConnection)
                 .expectNext(expectedResponseEntity)
@@ -340,17 +340,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email2(invalidEmail2)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
 
         // Verify
 
-        ResponseObject expectedResponseObject = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .message("Invalid email format {usernamedomain.com}. Please provide a valid email.")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(expectedResponseObject);
+                .body(expectedResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -397,17 +397,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email2(email2)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
 
         // Verify
 
-        ResponseObject expectedResponse = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .result(null)
                 .success("true")
                 .message("They are already friends. There is no need to create a new friend connection.")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -433,17 +433,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email2(email2)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
 
         // Verify the result
 
-        ResponseObject expectedResponse = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .result(null)
                 .success("true")
                 .message("One of the email address is not found.")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -475,17 +475,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email2(email2)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.createFriendConnection(request);
 
         // Verify the result
 
-        ResponseObject expectedResponse = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .result(null)
                 .success("true")
                 .message("One of the email address is not found.")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -535,7 +535,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email1(email1)
                 .email2(email2)
                 .build();
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
 
 
         // Verify the result
@@ -552,13 +552,13 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .build();
 
 
-        ResponseObject expectResponse = ResponseObject.builder()
+        Response expectResponse = Response.builder()
                 .message("Subscribed successfully.")
                 .result(expectNewSubDTO)
                 .success("true")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -580,17 +580,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email2(invalidEmail2)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
 
         // Verify
 
-        ResponseObject expectedResponseObject = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .message("Invalid email format {usernamedomain.com}. Please provide a valid email.")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(expectedResponseObject);
+                .body(expectedResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -681,17 +681,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email1(email1)
                 .email2(email2)
                 .build();
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
 
 
         // Verify the result
 
-        ResponseObject expectResponse = ResponseObject.builder()
+        Response expectResponse = Response.builder()
                 .message("Subscriber user not found.")
                 .success("true")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -723,17 +723,17 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email1(email1)
                 .email2(email2)
                 .build();
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
 
 
         // Verify the result
 
-        ResponseObject expectResponse = ResponseObject.builder()
+        Response expectResponse = Response.builder()
                 .message("Target user not found.")
                 .success("true")
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
@@ -805,18 +805,18 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .email(email)
                 .build();
 
-        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.getEligibleEmailAddresses(request);
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.getEligibleEmailAddresses(request);
 
 
         // Verify the result
 
-        ResponseObject expectedResponse = ResponseObject.builder()
+        Response expectedResponse = Response.builder()
                 .message("Friend list retrieved successfully.")
                 .success("true")
                 .result(Arrays.asList(targetEmail1, targetEmail2))
                 .build();
 
-        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
 
 
         StepVerifier.create(actualResponseEntity)
