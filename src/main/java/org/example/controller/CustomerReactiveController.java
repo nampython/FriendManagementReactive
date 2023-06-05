@@ -1,10 +1,6 @@
 package org.example.controller;
 
-import org.example.dto.CommonFriendDTO;
-import org.example.dto.EligibleEmailAddressesDTO;
-import org.example.dto.FriendConnection;
-import org.example.dto.FriendListDTO;
-import org.example.dto.SubscribeUpdatesDTO;
+import org.example.dto.*;
 import org.example.model.*;
 import org.example.service.FriendShipReactiveService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +17,7 @@ public class CustomerReactiveController {
     private static final String CREATE_FRIEND = VERSION_API + "/user/connect";
     private static final String GET_UPDATE_EMAIL = VERSION_API + "/user/updatable";
     private static final String SUBSCRIBE_TO_UPDATE = VERSION_API + "/user/subscribe";
+    private static final String BLOCK_UPDATES = VERSION_API + "/user/block";
     @Autowired
     public CustomerReactiveController(FriendShipReactiveService friendShipReactiveService) {
         this.friendShipReactiveService = friendShipReactiveService;
@@ -60,7 +57,7 @@ public class CustomerReactiveController {
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt&gt;
      */
     @PostMapping(value = CREATE_FRIEND)
-    public Mono<ResponseEntity<Response>> createConnectionFriend(@RequestBody FriendConnection.Request request) {
+    public Mono<ResponseEntity<Response>> createConnectionFriend(@RequestBody FriendConnectionDTO.Request request) {
         return friendShipReactiveService.createFriendConnection(request);
     }
 
@@ -70,7 +67,6 @@ public class CustomerReactiveController {
      * @param request contain 2 emails from request to subscribe from email1 to email2
      *
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
-     *
      */
     @PostMapping(value = SUBSCRIBE_TO_UPDATE)
     public Mono<ResponseEntity<Response>> subscribeToUpdates(@RequestBody SubscribeUpdatesDTO.Request request) {
@@ -79,14 +75,13 @@ public class CustomerReactiveController {
 
 
     /**
-     *
-     * @param email1
-     * @param email2
-     * @return
+     * Block updates from an email address
+     * @param request contain 2 emails from request to block from email1 to email2
+     * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt;&gt;
      */
-    @PostMapping(value = "/user/block")
-    public Mono<Void> block(@RequestParam String email1, @RequestParam String email2) {
-        return friendShipReactiveService.blockUpdates(email1, email2);
+    @PostMapping(value = BLOCK_UPDATES)
+    public Mono<ResponseEntity<Response>> block(@RequestBody BlockUpdateDTO.Request request) {
+        return friendShipReactiveService.blockUpdates(request);
     }
 
     /**

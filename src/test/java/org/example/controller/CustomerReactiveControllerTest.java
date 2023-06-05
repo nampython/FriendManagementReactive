@@ -149,7 +149,7 @@ public class CustomerReactiveControllerTest {
 
         // Mock
 
-        FriendConnection.Request request = FriendConnection.Request.builder()
+        FriendConnectionDTO.Request request = FriendConnectionDTO.Request.builder()
                 .email1("andy@example.com")
                 .email2("john@example.com")
                 .build();
