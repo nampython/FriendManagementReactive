@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.model.friends.Friendship;
 
-
-public interface FriendConnection {
+public interface BlockUpdateDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
@@ -17,11 +15,11 @@ public interface FriendConnection {
         private String email2;
     }
 
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Data
-    @Builder
-    class Response {
-        private Friendship friendship;
-    }
+//    @NoArgsConstructor
+//    @AllArgsConstructor
+//    @Data
+//    @Builder
+//    class Response {
+//        Object o;
+//    }
 }

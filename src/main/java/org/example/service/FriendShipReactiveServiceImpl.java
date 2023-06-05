@@ -1,10 +1,6 @@
 package org.example.service;
 
-import org.example.dto.CommonFriendDTO;
-import org.example.dto.EligibleEmailAddressesDTO;
-import org.example.dto.FriendConnection;
-import org.example.dto.FriendListDTO;
-import org.example.dto.SubscribeUpdatesDTO;
+import org.example.dto.*;
 import org.example.exception.InvalidEmailException;
 import org.example.model.*;
 import org.example.model.friends.Block;
@@ -40,6 +36,13 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
     private static final String GET_COMMON_FRIEND_LIST;
     private static final String ALREADY_FRIEND;
     private static final String SUCCESSFULLY_ESTABLISH_FRIEND;
+    private static final String ALREADY_SUBSCRIPTION;
+    private static final String SUBSCRIBED_SUCCESSFULLY;
+    private static final String TARGET_USER_NOT_FOUND;
+    private static final String SUBSCRIBER_USER_NOT_FOUND;
+    private static final String RETRIEVE_LIST_SUCCESSFULLY;
+    private static final String BLOCK_UPDATES;
+
     private static final String INVALID_EMAIL_EXCEPTION;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
             + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$");
@@ -55,10 +58,16 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
 
     // Display Message
     static {
+        SUBSCRIBER_USER_NOT_FOUND = "Subscriber user {%s} not found, please try another email.";
+        TARGET_USER_NOT_FOUND = "Target user {%s} not found, please try another email.";
+        SUBSCRIBED_SUCCESSFULLY = "Subscribed successfully.";
+        ALREADY_SUBSCRIPTION = "They already have a subscription.";
         ALREADY_FRIEND = "%s and %s are already friends. There is no need to create a new friend connection.";
         GET_FRIEND_LIST_SUCCESSFULLY = "Friend list retrieved successfully.";
         GET_COMMON_FRIEND_LIST = "Common Friend list retrieved successfully.";
         SUCCESSFULLY_ESTABLISH_FRIEND = "The connection is established successfully.";
+        RETRIEVE_LIST_SUCCESSFULLY = "Retrieves the list successfully.";
+        BLOCK_UPDATES = "{%s} blocks {%s} successfully.";
     }
 
     // Exception message
@@ -226,9 +235,10 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      *
      * @param request Contain 2 emails that want to make a connection.
      * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt&gt;
+     * @throws InvalidEmailException When an email is invalid, throw an exception
      */
     @Override
-    public Mono<ResponseEntity<Response>> createFriendConnection(FriendConnection.Request request) {
+    public Mono<ResponseEntity<Response>> createFriendConnection(FriendConnectionDTO.Request request) throws InvalidEmailException {
 
         return Mono.just(request)
                 .filter(email1 -> isValidEmail(request.getEmail1()))
@@ -292,13 +302,20 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                 })
                 .onErrorResume(ex -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                         Response.builder()
+                                .method(HttpMethod.POST)
                                 .message(ex.getMessage())
                                 .build())));
     }
 
+    /**
+     * @param request Contain 2 emails to subscribe to receive the update.
+     * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt&gt;
+     * @throws InvalidEmailException When an email is invalid, throw an exception
+     */
     public Mono<ResponseEntity<Response>> subscribeToUpdates(SubscribeUpdatesDTO.Request request) throws InvalidEmailException {
 
         return Mono.just(request)
+                // Possibly blocking call in non-blocking context could lead to thread starvation
                 .filter(email1 -> isValidEmail(request.getEmail1()))
                 .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail1()))))
                 .filter(email2 -> isValidEmail(request.getEmail2()))
@@ -312,14 +329,16 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                         // Check if the subscription already exists
                                         return subscriptionReactiveDao.findBySubscriberIdAndTargetId(subscriber.getUserId(), target.getUserId())
                                                 .flatMap(existingSubscription -> Mono.just(Response.builder()
+                                                                .method(HttpMethod.POST)
                                                                 .success(SUCCESS)
                                                                 .result(existingSubscription)
-                                                                .message("They already have a subscription.")
+                                                                .message(ALREADY_SUBSCRIPTION)
                                                                 .build()
                                                         )
                                                 )
                                                 .switchIfEmpty(
-                                                        // Create a new subscription
+                                                        // In case of not founding a subscription between 2 emails.
+                                                        // Need to Create a new subscription
                                                         subscriptionReactiveDao.save(new Subscription(subscriber.getUserId(), target.getUserId()))
                                                                 .map(
                                                                         savedSubscription -> SubscribeUpdatesDTO.Response.builder()
@@ -328,9 +347,10 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                                                 )
                                                                 .map(
                                                                         savedSubscription -> Response.builder()
-                                                                                .message("Subscribed successfully.")
+                                                                                .message(SUBSCRIBED_SUCCESSFULLY)
                                                                                 .result(savedSubscription)
                                                                                 .success(SUCCESS)
+                                                                                .method(HttpMethod.POST)
                                                                                 .build()
                                                                 )
                                                 );
@@ -339,7 +359,8 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                     .switchIfEmpty(
                                             Mono.defer(() -> Mono.just(Response.builder()
                                                     .success(SUCCESS)
-                                                    .message("Target user not found.")
+                                                    .method(HttpMethod.POST)
+                                                    .message(String.format(TARGET_USER_NOT_FOUND, req.getEmail2()))
                                                     .build()))
                                     )
                             )
@@ -347,7 +368,8 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                             .switchIfEmpty(
                                     Mono.defer(() -> Mono.just(Response.builder()
                                             .success(SUCCESS)
-                                            .message("Subscriber user not found.")
+                                            .method(HttpMethod.POST)
+                                            .message(String.format(SUBSCRIBER_USER_NOT_FOUND, req.getEmail1()))
                                             .build()))
                             );
                     return response.next() // Get the first (and only) element from the Flux
@@ -355,46 +377,85 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                 })
                 .onErrorResume(ex -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                         Response.builder()
+                                .method(HttpMethod.POST)
                                 .message(ex.getMessage())
                                 .build()))
 
                 );
     }
 
-
     /**
      * Block updates from an email address.
      *
-     * @param blockerEmail The blocker email address.
-     * @param blockedEmail The blocked email address.
-     * @return
+     * @param request The blocker email address.
+     * @return A Mono&lt;ResponseEntity&lt;ResponseObject&gt&gt;
      */
     @Override
-    public Mono<Void> blockUpdates(String blockerEmail, String blockedEmail) {
-        Mono<User> blockerUserMono = userReactiveDao.findByEmail(blockerEmail);
-        Mono<User> blockedUserMono = userReactiveDao.findByEmail(blockedEmail);
+    public Mono<ResponseEntity<Response>> blockUpdates(BlockUpdateDTO.Request request) {
+        return Mono.just(request)
+                // Possibly blocking call in non-blocking context could lead to thread starvation
+                .filter(email1 -> isValidEmail(request.getEmail1()))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail1()))))
+                .filter(email2 -> isValidEmail(request.getEmail2()))
+                .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail2()))))
+                .flatMap(req -> {
+                    Flux<User> user1 = userReactiveDao.findByEmail(req.getEmail1()).flux();
+                    Flux<User> user2 = userReactiveDao.findByEmail(req.getEmail2()).flux();
+                    Flux<Response> response = user1.concatMap(u1 ->
+                            user2.concatMap(u2 ->
+                                    {
+                                        Integer userId1 = u1.getUserId();
+                                        Integer userId2 = u2.getUserId();
+                                        return friendshipReactive.findByUserIdAndFriendId(userId1, userId2)
+                                                .flux()
+                                                .concatMap(
+                                                        friendship -> {
+                                                            // They are friends, delete the subscription
+                                                            Mono<Void> subscriberIdAndTargetId = subscriptionReactiveDao.deleteBySubscriberIdAndTargetId(userId1, userId2);
+                                                            return subscriberIdAndTargetId
+                                                                    .flux()
+                                                                    .concatMap(subscription -> Mono.just(Response.builder()
+                                                                            .success(SUCCESS)
+                                                                            .method(HttpMethod.POST)
+                                                                            .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
+                                                                            .build())
+                                                                    ).switchIfEmpty(
+                                                                            Mono.defer(() -> Mono.just(Response.builder()
+                                                                                    .success(SUCCESS)
+                                                                                    .method(HttpMethod.POST)
+//                                                                                    .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
+                                                                                    .build()))
+                                                                    );
+                                                        }
+                                                )
+                                                .switchIfEmpty(Mono.defer(() -> {
+                                                    // They are not friends, add to the block table
+                                                    return blockReactiveRepository.save(
+                                                            Block.builder()
+                                                                    .blockerId(userId1)
+                                                                    .blockedId(userId2)
+                                                                    .build()
+                                                    ).map(block -> Response.builder()
+                                                            .success(SUCCESS)
+                                                            .method(HttpMethod.POST)
+                                                            .message(String.format(BLOCK_UPDATES, req.getEmail1(), req.getEmail2()))
+                                                            .build());
+                                                }));
+                                    }
+                            )
+                    );
+                    return response
+                            .next()
+                            .map(resObject -> ResponseEntity.status(HttpStatus.OK).body(resObject));
+                })
+                .onErrorResume(ex -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        Response.builder()
+                                .method(HttpMethod.POST)
+                                .message(ex.getMessage())
+                                .build()))
 
-        return Flux.concat(blockerUserMono.flux(), blockedUserMono.flux())
-                .collectList()
-                .flatMap(users -> {
-                    User blockerUser = users.get(0);
-                    User blockedUser = users.get(1);
-
-                    Mono<Friendship> friendshipMono = friendshipReactive
-                            .findByUserIdAndFriendId(blockerUser.getUserId(), blockedUser.getUserId());
-                    return friendshipMono.flatMap(friendship -> {
-                        // They are friends, delete the subscription
-                        return subscriptionReactiveDao
-                                .deleteBySubscriberIdAndTargetId(blockerUser.getUserId(), blockedUser.getUserId())
-                                .then();
-                    }).switchIfEmpty(Mono.defer(() -> {
-                        // They are not friends, add to the block table
-                        Block block = new Block(blockerUser.getUserId(), blockedUser.getUserId());
-                        return blockReactiveRepository.save(block).then();
-                    }));
-                });
+                );
     }
-
 
     /**
      * Retrieves all email addresses that can receive updates from an email address.
@@ -404,8 +465,8 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      */
     @Override
     public Mono<ResponseEntity<Response>> getEligibleEmailAddresses(EligibleEmailAddressesDTO.Request request) throws InvalidEmailException {
-
         return Mono.just(request)
+                // Possibly blocking call in non-blocking context could lead to thread starvation
                 .filter(email -> isValidEmail(request.getEmail()))
                 .switchIfEmpty(Mono.error(new InvalidEmailException(String.format(INVALID_EMAIL_EXCEPTION, request.getEmail()))))
                 .flatMap(req -> {
@@ -432,25 +493,22 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
                                             .friends(emails)
                                             .count(emails.size())
                                             .build())
-                                    .map(emails -> {
-                                        Response responseObject = new Response();
-                                        responseObject.setMessage("Friend list retrieved successfully.");
-                                        responseObject.setSuccess(SUCCESS);
-                                        responseObject.setResult(emails);
-                                        return responseObject;
-                                    });
+                                    .map(emails -> Response.builder()
+                                            .method(HttpMethod.POST)
+                                            .message(RETRIEVE_LIST_SUCCESSFULLY)
+                                            .result(emails)
+                                            .success(SUCCESS)
+                                            .build());
                             return response.map(
                                     emails -> ResponseEntity.status(HttpStatus.OK).body(emails)
                             );
                         }
                 )
-                .onErrorResume(ex -> {
-                            ;
-                            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                                    Response.builder()
-                                            .message(ex.getMessage())
-                                            .build()));
-                        }
+                .onErrorResume(ex -> Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        Response.builder()
+                                .method(HttpMethod.POST)
+                                .message(ex.getMessage())
+                                .build()))
                 );
     }
 }

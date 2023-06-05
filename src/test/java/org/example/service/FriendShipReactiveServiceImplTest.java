@@ -299,7 +299,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
 
         // Invoke method
 
-        FriendConnection.Request request = FriendConnection.Request.builder()
+        FriendConnectionDTO.Request request = FriendConnectionDTO.Request.builder()
                 .email1(email1)
                 .email2(email2)
                 .build();
@@ -335,7 +335,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
 
         // Invoke method
 
-        FriendConnection.Request request = FriendConnection.Request.builder()
+        FriendConnectionDTO.Request request = FriendConnectionDTO.Request.builder()
                 .email1(invalidEmail1)
                 .email2(invalidEmail2)
                 .build();
@@ -392,7 +392,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
 
         // Invoke method
 
-        FriendConnection.Request request = FriendConnection.Request.builder()
+        FriendConnectionDTO.Request request = FriendConnectionDTO.Request.builder()
                 .email1(email1)
                 .email2(email2)
                 .build();
@@ -428,7 +428,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
 
         // Invoke method
 
-        FriendConnection.Request request = FriendConnection.Request.builder()
+        FriendConnectionDTO.Request request = FriendConnectionDTO.Request.builder()
                 .email1(email1)
                 .email2(email2)
                 .build();
@@ -470,7 +470,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
 
         // Invoke method
 
-        FriendConnection.Request request = FriendConnection.Request.builder()
+        FriendConnectionDTO.Request request = FriendConnectionDTO.Request.builder()
                 .email1(email1)
                 .email2(email2)
                 .build();
