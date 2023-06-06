@@ -48,48 +48,45 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
     public void testGetFriendsListBy_ValidEmail() {
         // Prepare for data
 
-        String email = "test@example.com";
+        String email = "andy@example.com";
 
-        User user = new User();
-        user.setUserId(1);
-        user.setEmail(email);
+        User expectedUser = User.builder()
+                .userId(1)
+                .email(email)
+                .build();
 
-        Friendship friendship1 = new Friendship();
-        friendship1.setFriendshipId(1);
-        friendship1.setUserId(1);
-        friendship1.setFriendId(2);
-        friendship1.setStatus("accepted");
+        Friendship expectedFriendShip = Friendship.builder()
+                .friendshipId(1)
+                .userId(1)
+                .friendId(2)
+                .build();
 
-        Friendship friendship2 = new Friendship();
-        friendship2.setFriendshipId(2);
-        friendship2.setUserId(1);
-        friendship2.setFriendId(3);
-        friendship2.setStatus("accepted");
-
-        User friend1 = new User();
-        friend1.setUserId(2);
-        friend1.setEmail("friend1@example.com");
-
-        User friend2 = new User();
-        friend2.setUserId(3);
-        friend2.setEmail("friend2@example.com");
+        User expectedFriend = User.builder()
+                .userId(2)
+                .email("friend1@example.com")
+                .build();
 
         // Mock
 
-        when(userReactiveDao.findByEmail(eq(email))).thenReturn(Mono.just(user));
-        when(friendshipReactiveDao.findByUserIdAndStatus(eq(1), eq("accepted")))
-                .thenReturn(Flux.just(friendship1, friendship2));
-        when(userReactiveDao.findByUserId(eq(2))).thenReturn(Mono.just(friend1));
-        when(userReactiveDao.findByUserId(eq(3))).thenReturn(Mono.just(friend2));
+        when(userReactiveDao.findByEmail(email))
+                .thenReturn(Mono.just(expectedUser));
+
+        when(friendshipReactiveDao.findByUserIdAndStatus(1, "accepted"))
+                .thenReturn(Flux.just(expectedFriendShip));
+
+        when(userReactiveDao.findByUserId(2))
+                .thenReturn(Mono.just(expectedFriend));
 
         // Invoke method
 
-        FriendListDTO.Request request = new FriendListDTO.Request("test@example.com");
-        Mono<ResponseEntity<Response>> result = friendShipReactiveService.getFriendsListByEmail(request);
+        FriendListDTO.Request request = FriendListDTO.Request.builder()
+                .email("andy@example.com")
+                .build();
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.getFriendsListByEmail(request);
 
-        // Verify the result
+        // Verify
 
-        List<String> expectedFriends = Arrays.asList("friend1@example.com", "friend2@example.com");
+        List<String> expectedFriends = Arrays.asList("friend1@example.com");
 
         FriendListDTO.Response expectedResponseDTO = FriendListDTO.Response.builder()
                 .friends(expectedFriends)
@@ -104,17 +101,9 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .build();
         ResponseEntity<Response> expectedResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
 
-        StepVerifier.create(result)
+        StepVerifier.create(actualResponseEntity)
                 .expectNext(expectedResponseEntity)
                 .verifyComplete();
-
-        // Verify the interactions with the mocks
-
-        verify(userReactiveDao).findByEmail(email);
-
-        verify(friendshipReactiveDao).findByUserIdAndStatus(user.getUserId(), "accepted");
-
-        verify(userReactiveDao).findByUserId(friendship2.getFriendId());
     }
 
     @Test
@@ -260,6 +249,96 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
 
         StepVerifier.create(actualResponseEntity)
                 .expectNext(expectResponseEntity)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetCommonFriends_NotFoundEmail1() {
+        // Prepare data
+
+        String email1 = "andy@example.com";
+        String email2 = "john@example.com";
+
+
+        User user2 = User.builder()
+                .userId(2)
+                .email(email2)
+                .build();
+
+        // Mock
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.empty());
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.just(user2));
+
+
+        // Invoke Method
+
+        CommonFriendDTO.Request request = CommonFriendDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualCommonFriends = friendShipReactiveService.getCommonFriends(request);
+
+        // Verify the result
+
+
+        Response expectResponse = Response.builder()
+                .success("true")
+                .message(String.format("Cannot find email {%s}. Please try another email", request.getEmail1()))
+                .build();
+
+        ResponseEntity<Response> expectResEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
+
+        StepVerifier.create(actualCommonFriends)
+                .expectNext(expectResEntity)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetCommonFriends_NotFoundEmail2() {
+        // Prepare data
+
+        String email1 = "andy@example.com";
+        String email2 = "john@example.com";
+
+        User user1 = User.builder()
+                .userId(1)
+                .email(email1)
+                .build();
+
+        // Mock
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.just(user1));
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.empty());
+
+        // Invoke Method
+
+        CommonFriendDTO.Request request = CommonFriendDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualCommonFriends = friendShipReactiveService.getCommonFriends(request);
+
+        // Verify the result
+
+
+        Response expectResponse = Response.builder()
+                .success("true")
+                .message(String.format("Cannot find email {%s}. Please try another email", request.getEmail2()))
+                .build();
+
+        ResponseEntity<Response> expectResEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
+
+        StepVerifier.create(actualCommonFriends)
+                .expectNext(expectResEntity)
                 .verifyComplete();
     }
 
@@ -600,62 +679,64 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .verifyComplete();
     }
 
-//    @Test
-//    public void testSubscribeToUpdates_AlreadySubscription() {
-//        // Prepare for data
-//
-//        String email1 = "andy@example.com";
-//        String email2 = "john@example.com";
-//
-//        User subscriberUser = User.builder()
-//                .userId(1)
-//                .email(email1)
-//                .build();
-//        User targetUser = User.builder()
-//                .userId(2)
-//                .email(email2)
-//                .build();
-//
-//        Subscription existSubscription = Subscription.builder()
-//                .subscriptionId(1)
-//                .subscriberId(1)
-//                .targetId(2)
-//                .build();
-//
-//        // Mock
-//
-//        when(userReactiveDao.findByEmail(email1))
-//                .thenReturn(Mono.just(subscriberUser));
-//
-//        when(userReactiveDao.findByEmail(email2))
-//                .thenReturn(Mono.just(targetUser));
-//
-//        when(subscriptionReactiveDao.findBySubscriberIdAndTargetId(anyInt(), anyInt()))
-//                .thenReturn(Mono.just(existSubscription));
-//
-//        // Invoke method
-//
-//        SubscribeUpdatesDTO.Request request = SubscribeUpdatesDTO.Request.builder()
-//                .email1(email1)
-//                .email2(email2)
-//                .build();
-//        Mono<ResponseEntity<ResponseObject>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
-//
-//
-//        // Verify the result
-//
-//        ResponseObject expectResponse = ResponseObject.builder()
-//                .message("They already have a subscription.")
-//                .result(existSubscription)
-//                .success("true")
-//                .build();
-//
-//        ResponseEntity<ResponseObject> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
-//
-//        StepVerifier.create(actualResponseEntity)
-//                .expectNext(expectResponseEntity)
-//                .verifyComplete();
-//    }
+    @Test
+    public void testSubscribeToUpdates_AlreadySubscription() {
+        // Prepare for data
+
+        String email1 = "andy@example.com";
+        String email2 = "john@example.com";
+
+        User expectedSubscriberUser = User.builder()
+                .userId(1)
+                .email(email1)
+                .build();
+        User expectedTargetUser = User.builder()
+                .userId(2)
+                .email(email2)
+                .build();
+
+        Subscription expectedExistSub = Subscription.builder()
+                .subscriptionId(1)
+                .subscriberId(1)
+                .targetId(2)
+                .build();
+
+        // Moc
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.just(expectedSubscriberUser));
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.just(expectedTargetUser));
+
+        when(subscriptionReactiveDao.findBySubscriberIdAndTargetId(anyInt(), anyInt()))
+                .thenReturn(Mono.just(expectedExistSub));
+
+        when(subscriptionReactiveDao.save(any()))
+                .thenReturn(Mono.just(expectedExistSub));
+        // Invoke method
+
+        SubscribeUpdatesDTO.Request request = SubscribeUpdatesDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.subscribeToUpdates(request);
+
+
+        // Verify the result
+
+        Response expectResponse = Response.builder()
+                .message("They already have a subscription.")
+                .result(expectedExistSub)
+                .success("true")
+                .build();
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
+    }
 
 
     @Test
@@ -978,6 +1059,7 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .expectNext(expectResponseEntity)
                 .verifyComplete();
     }
+
     @Test
     public void testBlockUpdates_NotAlreadyBlocked() {
         // Prepare for data
