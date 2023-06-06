@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-public class CustomerReactiveController {
+public class FriendShipReactiveController {
     private final FriendShipReactiveService friendShipReactiveService;
     private static final String VERSION_API = "/v1";
     private static final String GET_FRIENDS = VERSION_API +  "/user/friends";
@@ -19,7 +19,7 @@ public class CustomerReactiveController {
     private static final String SUBSCRIBE_TO_UPDATE = VERSION_API + "/user/subscribe";
     private static final String BLOCK_UPDATES = VERSION_API + "/user/block";
     @Autowired
-    public CustomerReactiveController(FriendShipReactiveService friendShipReactiveService) {
+    public FriendShipReactiveController(FriendShipReactiveService friendShipReactiveService) {
         this.friendShipReactiveService = friendShipReactiveService;
     }
 
