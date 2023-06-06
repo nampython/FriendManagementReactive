@@ -3,6 +3,7 @@ package org.example.service;
 import junit.framework.TestCase;
 import org.example.dto.*;
 import org.example.model.Response;
+import org.example.model.friends.Block;
 import org.example.model.friends.Friendship;
 import org.example.model.friends.Subscription;
 import org.example.model.friends.User;
@@ -832,13 +833,39 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
     }
 
     @Test
-    public void testBlockUpdates() {
+    public void getEligibleEmailAddresses_InValidEmail() {
+        // Prepare for data
+        String email = "andyexample.com";
 
+        // Mock
+
+        // Invoke method
+
+        EligibleEmailAddressesDTO.Request request = EligibleEmailAddressesDTO.Request.builder()
+                .email(email)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.getEligibleEmailAddresses(request);
+
+        // Verify
+        Response expectedResponse = Response.builder()
+                .message("Invalid email format {andyexample.com}. Please provide a valid email.")
+                .method(HttpMethod.POST)
+                .build();
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(expectedResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBlockUpdates() {
         // Prepare for data
 
         String email1 = "andy@example.com";
-        String email2 = "andy@example.com";
-
+        String email2 = "john@example.com";
 
         User expectedUser1 = User.builder()
                 .userId(1)
@@ -878,7 +905,6 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
 
         Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.blockUpdates(request);
 
-
         // Verify
 
         Response expectedResponse = Response.builder()
@@ -893,5 +919,236 @@ public class FriendShipReactiveServiceImplTest extends TestCase {
                 .expectNext(expectResponseEntity)
                 .verifyComplete();
 
+    }
+
+    @Test
+    public void testBlockUpdates_AlreadyBlocked() {
+        // Prepare for data
+        String email1 = "andy@example.com";
+        String email2 = "john@example.com";
+
+        User expectedUser1 = User.builder()
+                .userId(1)
+                .email(email1)
+                .build();
+        User expectedUser2 = User.builder()
+                .userId(2)
+                .email(email2)
+                .build();
+
+        Block expectedBlock = Block.builder()
+                .blockId(1)
+                .blockerId(1)
+                .blockedId(2)
+                .build();
+        // Mock
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.just(expectedUser1));
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.just(expectedUser2));
+
+        when(friendshipReactiveDao.findByUserIdAndFriendId(1, 2))
+                .thenReturn(Mono.empty());
+
+        when(blockReactiveRepository.findByBlockerIdAndBlockedId(1, 2))
+                .thenReturn(Mono.just(expectedBlock));
+
+        // Invoke method
+
+        BlockUpdateDTO.Request request = BlockUpdateDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.blockUpdates(request);
+
+        // Verify
+
+        Response expectedResponse = Response.builder()
+                .success("true")
+                .method(HttpMethod.POST)
+                .message(String.format(String.format("{%s} already blocks {%s}.", email1, email2)))
+                .build();
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
+    }
+    @Test
+    public void testBlockUpdates_NotAlreadyBlocked() {
+        // Prepare for data
+        String email1 = "andy@example.com";
+        String email2 = "john@example.com";
+
+        User expectedUser1 = User.builder()
+                .userId(1)
+                .email(email1)
+                .build();
+        User expectedUser2 = User.builder()
+                .userId(2)
+                .email(email2)
+                .build();
+
+        Block expectedBlock = Block.builder()
+                .blockId(1)
+                .blockerId(1)
+                .blockedId(2)
+                .build();
+        // Mock
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.just(expectedUser1));
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.just(expectedUser2));
+
+        when(friendshipReactiveDao.findByUserIdAndFriendId(anyInt(), anyInt()))
+                .thenReturn(Mono.empty());
+
+        when(blockReactiveRepository.findByBlockerIdAndBlockedId(anyInt(), anyInt()))
+                .thenReturn(Mono.empty());
+
+        when(blockReactiveRepository.save(any()))
+                .thenReturn(Mono.just(expectedBlock));
+        // Invoke method
+
+        BlockUpdateDTO.Request request = BlockUpdateDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.blockUpdates(request);
+
+        // Verify
+        Response expectedResponse = Response.builder()
+                .success("true")
+                .method(HttpMethod.POST)
+                .message(String.format(String.format("{%s} blocks {%s} successfully.", email1, email2)))
+                .build();
+
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBlockUpdates_NotFoundEmail1() {
+        // Prepare for data
+        String email1 = "andy@example.com";
+        String email2 = "john@example.com";
+
+        User expectedUser2 = User.builder()
+                .userId(2)
+                .email(email2)
+                .build();
+
+        // Mock
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.empty());
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.just(expectedUser2));
+
+        // Invoke method
+
+        BlockUpdateDTO.Request request = BlockUpdateDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.blockUpdates(request);
+
+        // Verify
+        Response expectedResponse = Response.builder()
+                .method(HttpMethod.POST)
+                .success("true")
+                .message(String.format("Cannot find email {%s}. Please try another email", request.getEmail1()))
+                .build();
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBlockUpdates_NotFoundEmail2() {
+        // Prepare for data
+        String email1 = "andy@example.com";
+        String email2 = "john@example.com";
+
+        User expectedUser1 = User.builder()
+                .userId(1)
+                .email(email1)
+                .build();
+
+        // Mock
+
+        when(userReactiveDao.findByEmail(email1))
+                .thenReturn(Mono.just(expectedUser1));
+
+        when(userReactiveDao.findByEmail(email2))
+                .thenReturn(Mono.empty());
+
+        // Invoke method
+
+        BlockUpdateDTO.Request request = BlockUpdateDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.blockUpdates(request);
+
+        // Verify
+        Response expectedResponse = Response.builder()
+                .method(HttpMethod.POST)
+                .success("true")
+                .message(String.format("Cannot find email {%s}. Please try another email", request.getEmail2()))
+                .build();
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.OK).body(expectedResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBlockUpdates_InValidEmail() {
+        // Prepare for data
+        String email1 = "andyexample.com";
+        String email2 = "john@example.com";
+
+        // Mock
+
+        // Invoke method
+
+        BlockUpdateDTO.Request request = BlockUpdateDTO.Request.builder()
+                .email1(email1)
+                .email2(email2)
+                .build();
+
+        Mono<ResponseEntity<Response>> actualResponseEntity = friendShipReactiveService.blockUpdates(request);
+
+        // Verify
+        Response expectedResponse = Response.builder()
+                .message("Invalid email format {andyexample.com}. Please provide a valid email.")
+                .method(HttpMethod.POST)
+                .build();
+
+        ResponseEntity<Response> expectResponseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).body(expectedResponse);
+
+        StepVerifier.create(actualResponseEntity)
+                .expectNext(expectResponseEntity)
+                .verifyComplete();
     }
 }
