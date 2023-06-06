@@ -6,9 +6,7 @@ import org.example.model.friends.Friendship;
 import org.example.model.friends.Subscription;
 import org.example.service.FriendShipReactiveService;
 import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,22 +23,14 @@ import java.util.List;
 
 import static org.mockito.Mockito.when;
 
-@WebFluxTest(CustomerReactiveController.class)
+@WebFluxTest(FriendShipReactiveController.class)
 @RunWith(SpringRunner.class)
-public class CustomerReactiveControllerTest {
+public class FriendShipReactiveControllerTest {
     @Autowired
     private WebTestClient webClient;
 
     @MockBean
     private FriendShipReactiveService friendShipReactiveService;
-    @Mock
-    private CustomerReactiveController customerReactiveController;
-
-
-    @BeforeEach
-    public void setup() {
-        webClient = WebTestClient.bindToController(customerReactiveController).build();
-    }
 
     @Test
     public void getFriendList() {
@@ -260,4 +250,48 @@ public class CustomerReactiveControllerTest {
                 .jsonPath("$.result.friends[0]").isEqualTo("andy@example.com")
                 .jsonPath("$.result.friends[1]").isEqualTo("john@example.com");
     }
+    @Test
+    public void block() {
+        // Prepare for data
+
+        String friend1 = "andy@example.com";
+        String friend2 = "john@example.com";
+        List<String> expectedFriends = Arrays.asList(friend1, friend2);
+
+        EligibleEmailAddressesDTO.Response expectedResponse = EligibleEmailAddressesDTO.Response
+                .builder()
+                .friends(expectedFriends)
+                .count(expectedFriends.size())
+                .build();
+
+        Response expectedResponseObject = new Response();
+        expectedResponseObject.setMessage("Friend list retrieved successfully.");
+        expectedResponseObject.setSuccess("true");
+        expectedResponseObject.setResult(expectedResponse);
+
+        // Mock
+
+        EligibleEmailAddressesDTO.Request request = EligibleEmailAddressesDTO.Request.builder()
+                .email("test1@gmail.com")
+                .build();
+        when(friendShipReactiveService.getEligibleEmailAddresses(request))
+                .thenReturn(Mono.just(ResponseEntity.ok().body(expectedResponseObject)));
+
+        // Verify the response
+
+        webClient
+                .post()
+                .uri("/v1/user/updatable")
+                .body(BodyInserters.fromValue(request))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.success").isEqualTo("true")
+                .jsonPath("$.message").isEqualTo("Friend list retrieved successfully.")
+                .jsonPath("$.result.count").isEqualTo(2)
+                .jsonPath("$.result.friends[0]").isEqualTo("andy@example.com")
+                .jsonPath("$.result.friends[1]").isEqualTo("john@example.com");
+    }
+
 }
