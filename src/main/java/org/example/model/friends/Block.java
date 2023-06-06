@@ -1,6 +1,7 @@
 package org.example.model.friends;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "block", schema = "friendsmanagement", catalog = "")
 public class Block {
     @GeneratedValue(strategy = GenerationType.IDENTITY)

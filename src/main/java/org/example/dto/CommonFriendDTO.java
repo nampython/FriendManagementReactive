@@ -1,0 +1,28 @@
+package org.example.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+public interface CommonFriendDTO {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    @Builder
+    class Request {
+        private String email1;
+        private String email2;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    @Builder
+    class Response {
+        private List<String> friends = null;
+        private Integer count = null;
+    }
+}

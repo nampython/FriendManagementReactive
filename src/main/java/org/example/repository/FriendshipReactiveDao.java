@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface FriendshipReactiveDao extends R2dbcRepository<Friendship, Integer> {
-    Flux<Friendship> findByUserIdAndStatus(int userId, String status);
-    Mono<Friendship> findByUserIdAndFriendId(int userId, int friendId);
+    Flux<Friendship> findByUserIdAndStatus(Integer userId, String status);
+    Mono<Friendship> findByUserIdAndFriendId(Integer userId, Integer friendId);
+    Flux<Friendship> findByUserId(Integer userId);
 }
