@@ -1,11 +1,15 @@
 spring:
     application:
         name: TestApp
-
+    #   GraphQL configs
+    graphql:
+        graphiql:
+            enabled: true
+            path: /graphiql
     r2dbc:
         url: r2dbc:mysql://localhost:3306/friendsmanagement
-        username: root
-        password: Now123DQN
+        username: "user"
+        password: "password"
     #   JPA
     jpa:
         hibernate:
