@@ -2,6 +2,7 @@ package org.example.repository;
 
 import junit.framework.TestCase;
 import org.example.model.friends.User;
+import org.example.repository.friendshiprepository.UserReactiveDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -11,7 +12,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 

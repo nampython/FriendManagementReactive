@@ -1,10 +1,11 @@
 package org.example.controller;
 
-import org.example.dto.*;
+import org.example.controller.reactiveController.FriendShipReactiveController;
+import org.example.dto.friendship.*;
 import org.example.model.Response;
 import org.example.model.friends.Friendship;
 import org.example.model.friends.Subscription;
-import org.example.service.FriendShipReactiveService;
+import org.example.service.friendShipService.FriendShipReactiveService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

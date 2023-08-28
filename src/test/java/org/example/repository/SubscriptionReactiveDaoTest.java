@@ -2,6 +2,7 @@ package org.example.repository;
 
 import junit.framework.TestCase;
 import org.example.model.friends.Subscription;
+import org.example.repository.friendshiprepository.SubscriptionReactiveDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

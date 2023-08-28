@@ -1,16 +1,16 @@
-package org.example.service;
+package org.example.service.friendShipService;
 
-import org.example.dto.*;
+import org.example.dto.friendship.*;
 import org.example.exception.InvalidEmailException;
 import org.example.model.*;
 import org.example.model.friends.Block;
 import org.example.model.friends.Friendship;
 import org.example.model.friends.Subscription;
 import org.example.model.friends.User;
-import org.example.repository.BlockReactiveRepository;
-import org.example.repository.FriendshipReactiveDao;
-import org.example.repository.SubscriptionReactiveDao;
-import org.example.repository.UserReactiveDao;
+import org.example.repository.friendshiprepository.BlockReactiveRepository;
+import org.example.repository.friendshiprepository.FriendshipReactiveDao;
+import org.example.repository.friendshiprepository.SubscriptionReactiveDao;
+import org.example.repository.friendshiprepository.UserReactiveDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -99,6 +99,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      */
     @Override
     public Mono<ResponseEntity<Response>> getFriendsListByEmail(FriendListDTO.Request request) throws InvalidEmailException {
+
         return Mono.just(request.getEmail())
                 // to switch to the blocking context
 //                .publishOn(Schedulers.boundedElastic())
@@ -168,6 +169,7 @@ public class FriendShipReactiveServiceImpl implements FriendShipReactiveService 
      */
     @Override
     public Mono<ResponseEntity<Response>> getCommonFriends(CommonFriendDTO.Request request) throws InvalidEmailException {
+
 
         return Mono.just(request)
                 //Possibly blocking call in non-blocking context could lead to thread starvation

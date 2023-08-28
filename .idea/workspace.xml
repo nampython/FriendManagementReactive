@@ -4,35 +4,46 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b6c3ffe-41a8-4855-874e-d7c0aa26f267" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/App.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/CustomerReactiveController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/exception/EmailNotFoundException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/exception/InvalidEmailException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/CommonFriend.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/FriendConnection.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/FriendList.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/ResponseObject.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/SubscribeToUpdates.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/friends/Block.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/friends/Friendship.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/friends/Subscription.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/friends/Updatemention.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/friends/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/BlockReactiveRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/FriendshipReactiveDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/SubscriptionReactiveDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/UserReactiveDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/FriendShipReactiveService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/FriendShipReactiveServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/application.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/org/example/AppTest.java" afterDir="false" />
+    <list default="true" id="6b6c3ffe-41a8-4855-874e-d7c0aa26f267" name="Changes" comment="implement graphql.">
+      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/company.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/graphcontroller/GraphDepartmentController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/graphcontroller/GraphEmployeeController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/graphcontroller/GraphOrganizationController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/company/DepartmentDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/company/Department.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/company/Employee.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/model/company/Organization.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/companyrepository/DepartmentRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/companyrepository/EmployeeRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/companyrepository/OrganizationRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/companyservice/DepartmentService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/service/companyservice/DepartmentServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/controller/graphController/GraphFriendShipController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/graphcontroller/friendshipcontroller/GraphFriendShipController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/controller/reactiveController/FriendShipReactiveController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/controller/reactiveController/FriendShipReactiveController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/BlockUpdateDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/friendship/BlockUpdateDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/CommonFriendDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/friendship/CommonFriendDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/EligibleEmailAddressesDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/friendship/EligibleEmailAddressesDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/FriendConnectionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/friendship/FriendConnectionDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/FriendListDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/friendship/FriendListDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/dto/SubscribeUpdatesDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/dto/friendship/SubscribeUpdatesDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/BlockReactiveRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/friendshiprepository/BlockReactiveRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/FriendshipReactiveDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/friendshiprepository/FriendshipReactiveDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/SubscriptionReactiveDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/friendshiprepository/SubscriptionReactiveDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/repository/UserReactiveDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/repository/friendshiprepository/UserReactiveDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/FriendShipReactiveService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/friendShipService/FriendShipReactiveService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/service/FriendShipReactiveServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/service/friendShipService/FriendShipReactiveServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/example/controller/FriendShipReactiveControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/example/controller/FriendShipReactiveControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/example/repository/BlockReactiveRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/example/repository/BlockReactiveRepositoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/example/repository/FriendshipReactiveDaoTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/example/repository/FriendshipReactiveDaoTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/example/repository/SubscriptionReactiveDaoTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/example/repository/SubscriptionReactiveDaoTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/example/repository/UserReactiveDaoTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/example/repository/UserReactiveDaoTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/example/service/FriendShipReactiveServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/example/service/FriendShipReactiveServiceImplTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,56 +53,102 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature/implementation-graphql" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="useMavenConfig" value="true" />
-      </MavenGeneralSettings>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="5" />
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="develop" />
+                    <option name="lastUsedInstant" value="1688441272" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="feature/implementation-graphql" />
+                    <option name="lastUsedInstant" value="1688441186" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="master" />
+                    <option name="lastUsedInstant" value="1687858659" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
     </option>
   </component>
+  <component name="JpbToolWindowState">
+    <option name="isToolWindowVisible" value="false" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2Q8czMI8lIsqTREcuKFbTXHFe8p" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/nam.dinh/Desktop/FriendsManagement1/src/main/resources",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "copyright",
-    "spring.configuration.checksum": "423b44f6d49f6615ed00c6db13171044",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/nam.dinh/Desktop/reactive-spring-demo&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;spring.configuration.checksum&quot;: &quot;423b44f6d49f6615ed00c6db13171044&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\nam.dinh\Desktop\Services\FriendManagementReactive\src\main\java\org\example\model\company" />
+      <recent name="C:\Users\nam.dinh\Desktop\Services\FriendManagementReactive\src\main\resources" />
       <recent name="C:\Users\nam.dinh\Desktop\FriendsManagement1\src\main\resources" />
       <recent name="C:\Users\nam.dinh\Desktop\FriendsManagement1\src\main\java\org\example\service" />
       <recent name="C:\Users\nam.dinh\Desktop\FriendsManagement1\src\main\java\org\example" />
-      <recent name="C:\Users\nam.dinh\Desktop\FriendsManagement1\src\main\java\org\example\model" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\nam.dinh\Desktop\Services\FriendManagementReactive\src\main\resources\graphql" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="org.example" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="org.example.controller" />
@@ -99,8 +156,47 @@
     </key>
   </component>
   <component name="RunManager" selected="Spring Boot.App">
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="org.example.Main" />
+    <configuration name="MainApp (4)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.thread.MainApp" />
+      <module name="FriendsManagement1" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.thread.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MainApp (5)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.thread.MainApp" />
+      <module name="FriendsManagement1" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.thread.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.thread.MainApp" />
+      <module name="FriendsManagement1" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.thread.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.TestApp" />
       <module name="FriendsManagement1" />
       <extension name="coverage">
         <pattern>
@@ -128,7 +224,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Spring Boot.App" />
-        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.TestApp" />
+        <item itemvalue="Application.MainApp (5)" />
+        <item itemvalue="Application.MainApp (4)" />
+        <item itemvalue="Application.MainApp" />
       </list>
     </recent_temporary>
   </component>
@@ -142,10 +241,122 @@
       <updated>1684738911653</updated>
       <workItem from="1684738912796" duration="7868000" />
       <workItem from="1684808261577" duration="46368000" />
+      <workItem from="1686205616332" duration="493000" />
+      <workItem from="1686206121121" duration="73000" />
+      <workItem from="1686206749242" duration="732000" />
+      <workItem from="1686207496071" duration="1626000" />
+      <workItem from="1686209274393" duration="13516000" />
+      <workItem from="1686533125788" duration="75000" />
+      <workItem from="1686533209009" duration="16000" />
+      <workItem from="1686558269474" duration="19907000" />
+      <workItem from="1686732874722" duration="872000" />
+      <workItem from="1686734519455" duration="717000" />
+      <workItem from="1686795085942" duration="47000" />
+      <workItem from="1687420206369" duration="51000" />
+      <workItem from="1687420720350" duration="911000" />
+      <workItem from="1687421899546" duration="2780000" />
+      <workItem from="1687830272206" duration="5064000" />
+      <workItem from="1687855918668" duration="4912000" />
+      <workItem from="1687922276525" duration="2515000" />
+      <workItem from="1688004073792" duration="207000" />
+      <workItem from="1688005113698" duration="941000" />
+      <workItem from="1688020243712" duration="1419000" />
+      <workItem from="1688090209760" duration="619000" />
+      <workItem from="1688439004923" duration="5371000" />
+      <workItem from="1688452161176" duration="17048000" />
+      <workItem from="1688969705020" duration="8922000" />
+      <workItem from="1689058374550" duration="10000" />
+      <workItem from="1689065206759" duration="4319000" />
+      <workItem from="1689579343067" duration="2480000" />
+      <workItem from="1689752412857" duration="84000" />
+      <workItem from="1689836843862" duration="608000" />
+      <workItem from="1690942718746" duration="25000" />
+      <workItem from="1690942783816" duration="51000" />
+      <workItem from="1690942991956" duration="98000" />
+      <workItem from="1691572216000" duration="702000" />
+      <workItem from="1691573813231" duration="1385000" />
+      <workItem from="1693193095760" duration="315000" />
     </task>
+    <task id="LOCAL-00001" summary="remove the sensitive info and add graphql dependency">
+      <created>1687858896811</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1687858896811</updated>
+    </task>
+    <task id="LOCAL-00002" summary="change the name of package for the reactiveController">
+      <created>1687859047642</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1687859047642</updated>
+    </task>
+    <task id="LOCAL-00003" summary="implement graphql.">
+      <created>1687859352498</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1687859352498</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="feature/implementation-graphql" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="remove the sensitive info and add graphql dependency" />
+    <MESSAGE value="change the name of package for the reactiveController" />
+    <MESSAGE value="implement graphql." />
+    <option name="LAST_COMMIT_MESSAGE" value="implement graphql." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/controller/graphcontroller/friendshipcontroller/GraphFriendShipController.java</url>
+          <line>28</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/service/companyservice/DepartmentServiceImpl.java</url>
+          <line>27</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/controller/graphcontroller/GraphOrganizationController.java</url>
+          <line>27</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/org/example/controller/graphcontroller/GraphEmployeeController.java</url>
+          <line>25</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

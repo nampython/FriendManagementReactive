@@ -1,0 +1,33 @@
+type Query {
+    sayHello: String
+}
+
+type Mutation {
+    getFriendList(request: Request!): Response
+    getCommonFriends(request: RequestCustom!): Response
+    createConnectionFriend(request: RequestCustom!): Response
+}
+
+input Request {
+    email: String
+}
+
+input RequestCustom {
+    email1: String!,
+    email2: String!,
+}
+
+type Response {
+    createAt: String
+    method: String
+    status: String
+    message: String
+    success: String
+    result: Object
+}
+
+type Object {
+    friends: [String],
+    count: Int
+}
+

@@ -2,6 +2,7 @@ package org.example.repository;
 
 import junit.framework.TestCase;
 import org.example.model.friends.Block;
+import org.example.repository.friendshiprepository.BlockReactiveRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

@@ -1,4 +1,4 @@
-package org.example.repository;
+package org.example.repository.friendshiprepository;
 
 import org.example.model.friends.User;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
