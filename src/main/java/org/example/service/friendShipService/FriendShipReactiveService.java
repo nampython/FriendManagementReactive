@@ -1,6 +1,6 @@
-package org.example.service;
+package org.example.service.friendShipService;
 
-import org.example.dto.*;
+import org.example.dto.friendship.*;
 import org.example.exception.InvalidEmailException;
 import org.example.model.*;
 import org.springframework.http.ResponseEntity;

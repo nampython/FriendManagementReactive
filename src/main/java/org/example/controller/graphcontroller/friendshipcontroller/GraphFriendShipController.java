@@ -1,10 +1,10 @@
-package org.example.controller.graphController;
+package org.example.controller.graphcontroller.friendshipcontroller;
 
-import org.example.dto.CommonFriendDTO;
-import org.example.dto.FriendConnectionDTO;
-import org.example.dto.FriendListDTO;
+import org.example.dto.friendship.CommonFriendDTO;
+import org.example.dto.friendship.FriendConnectionDTO;
+import org.example.dto.friendship.FriendListDTO;
 import org.example.model.Response;
-import org.example.service.FriendShipReactiveService;
+import org.example.service.friendShipService.FriendShipReactiveService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.http.ResponseEntity;

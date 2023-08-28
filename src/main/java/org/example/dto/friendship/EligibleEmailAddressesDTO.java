@@ -1,19 +1,19 @@
-package org.example.dto;
+package org.example.dto.friendship;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.model.friends.Subscription;
 
-public interface SubscribeUpdatesDTO {
+import java.util.List;
+
+public interface EligibleEmailAddressesDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
     @Builder
     class Request {
-        private String email1;
-        private String email2;
+        private String email;
     }
 
     @NoArgsConstructor
@@ -21,6 +21,7 @@ public interface SubscribeUpdatesDTO {
     @Data
     @Builder
     class Response {
-        private Subscription subscription = null;
+        private List<String> friends = null;
+        private Integer count = null;
     }
 }

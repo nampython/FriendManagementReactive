@@ -1,13 +1,12 @@
-package org.example.dto;
+package org.example.dto.friendship;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.model.friends.Subscription;
 
-import java.util.List;
-
-public interface CommonFriendDTO {
+public interface SubscribeUpdatesDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
@@ -22,7 +21,6 @@ public interface CommonFriendDTO {
     @Data
     @Builder
     class Response {
-        private List<String> friends = null;
-        private Integer count = null;
+        private Subscription subscription = null;
     }
 }

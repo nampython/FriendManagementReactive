@@ -1,8 +1,8 @@
 package org.example.controller.reactiveController;
 
-import org.example.dto.*;
+import org.example.dto.friendship.*;
 import org.example.model.*;
-import org.example.service.FriendShipReactiveService;
+import org.example.service.friendShipService.FriendShipReactiveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

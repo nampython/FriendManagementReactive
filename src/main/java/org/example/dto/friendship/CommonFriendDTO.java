@@ -1,4 +1,4 @@
-package org.example.dto;
+package org.example.dto.friendship;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,13 +7,14 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-public interface FriendListDTO {
+public interface CommonFriendDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
     @Builder
     class Request {
-        private String email;
+        private String email1;
+        private String email2;
     }
 
     @NoArgsConstructor
